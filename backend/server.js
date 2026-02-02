@@ -48,8 +48,8 @@ const corsOptions = {
 // We can pass an empty object to disable a specific header if needed (e.g., if you set a custom CSP)
 app.use(
   helmet({
-    //contentSecurityPolicy: false, // Set to false if you plan to manually configure CSP elsewhere or use the defaults
-    crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: false, // Set to false if you plan to manually configure CSP elsewhere or use the defaults
+    // crossOriginResourcePolicy: { policy: "cross-origin" },
   })
 );
 
