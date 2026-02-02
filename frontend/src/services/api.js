@@ -1,6 +1,12 @@
 import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
+// const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
+
+// Check if the app is running on a real URL or localhost
+const BASE_URL = window.location.origin.includes('localhost') 
+  ? 'http://localhost:5000/api' 
+  : 'https://pos-app-qdvc.onrender.com/api';
+
 const token = localStorage.getItem("token");
 
 let isRefreshing = false;

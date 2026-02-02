@@ -21,6 +21,7 @@ const __dirname = path.dirname(__filename);
 
 const ALLOWED_ORIGINS = [
   "http://localhost:4000", // For local development testing
+  "https://pos-app-qdvc.onrender.com", // For local development testing
   process.env.FRONTEND_URL, // Your deployed client app
 ].filter(Boolean); // If process.env.FRONTEND_URL is undefined, it will still be in the array.
 
