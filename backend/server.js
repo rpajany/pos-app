@@ -10,6 +10,7 @@ import logger from "./utils/logger.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
 import path from "path";
+import { fileURLToPath } from "url";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -49,6 +50,7 @@ const corsOptions = {
 app.use(
   helmet({
     contentSecurityPolicy: false, // Set to false if you plan to manually configure CSP elsewhere or use the defaults
+   crossOriginEmbedderPolicy: false, // Recommended for MERN monoliths
     // crossOriginResourcePolicy: { policy: "cross-origin" },
   })
 );
