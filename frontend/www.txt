@@ -1,0 +1,82 @@
+
+
+https://vite.dev/guide/
+npm create vite@latest
+
+https://tailwindcss.com/docs/installation/using-vite
+npm install tailwindcss @tailwindcss/vite
+
+npm i react-router-dom@6.28.1
+
+npm i axios
+
+ npm i date-fns
+ npm i recharts
+ npm i jsbarcode
+ npm install jspdf jspdf-autotable
+
+ https://www.zoho.com/in/books/kb/gst/valid-state-codes-list.html
+
+ The GSTIN is a unique 15-digit number provided to a taxpayer registered under the GST. The first two digits of the GSTIN represents the state code. Here’s the list of the valid GST State Codes and their Tax Identification Numbers(TIN):
+
+State	TIN	State Code
+Andhra Pradesh	37	AD
+Arunachal Pradesh	12	AR
+Assam	18	AS
+Bihar	10	BR
+Chattisgarh	22	CG
+Delhi	07	DL
+Goa	30	GA
+Gujarat	24	GJ
+Haryana	06	HR
+Himachal Pradesh	02	HP
+Jammu and Kashmir	01	JK
+Jharkhand	20	JH
+Karnataka	29	KA
+Kerala	32	KL
+Lakshadweep Islands	31	LD
+Madhya Pradesh	23	MP
+Maharashtra	27	MH
+Manipur	14	MN
+Meghalaya	17	ML
+Mizoram	15	MZ
+Nagaland	13	NL
+Odisha	21	OD
+Pondicherry	34	PY
+Punjab	03	PB
+Rajasthan	08	RJ
+Sikkim	11	SK
+Tamil Nadu	33	TN
+Telangana	36	TS
+Tripura	16	TR
+Uttar Pradesh	09	UP
+Uttarakhand	05	UK
+West Bengal	19	WB
+Union Territory	TIN	State Code
+Andaman and Nicobar Islands	35	AN
+Chandigarh	04	CH
+Dadra & Nagar Haveli and Daman & Diu	26	DN
+Ladakh	38	LA
+Other Territory	97	OT
+
+----------------------------------------
+3. POS Printer Settings (Pro-Tip)
+When the print dialog opens, your users should check these settings once to ensure the barcodes don't get cut off:
+
+Destination: Select the specific Label Printer (e.g., TSC TTP-244).
+
+Margins: Set to None.
+
+Scale: Set to 100% (do not use "Fit to Page").
+
+Paper Size: Select the custom 50mm x 25mm size (User Defined).
+
+-------------------------------------------------------------------
+3. Will the Tamil Name Print?
+Yes, but it depends on your printing method.
+
+Scenario A: Thermal Printing (ESC/POS)
+If you are using a standard 80mm thermal printer, you often need to send a specific command to the printer to support Unicode/UTF-8. Most modern thermal printers support it, but you might need to load a Tamil font onto the printer's memory or use a driver that converts the text into an image before printing.
+
+Scenario B: Browser Printing (Window.print())
+If you generate a PDF or an HTML invoice and press Ctrl + P, it will work perfectly as long as your system has a Tamil font installed (which most modern OS like Windows 10/11, macOS, and Linux do by default).

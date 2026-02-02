@@ -1,0 +1,21 @@
+npm  init
+
+npm i express
+npm i helmet
+npm i cors
+npm i dotenv
+npm i cookie-parser
+npm i nodemon -D
+npm i mongoose
+npm i jsonwebtoken
+npm i winston
+npm i winston-mongodb
+npm i bcryptjs
+npm i json2csv
+
+gst report :-
+https://gemini.google.com/app/909840fe8d7d1b1c
+
+-------------------------------------------
+Pro-Tip: Transaction Safety
+Since these operations update two collections (SalesPayment and Sales), if one update succeeds and the other fails, your accounts will be "out of sync." If you are using MongoDB Atlas, consider using a Session/Transaction to ensure both updates happen together or not at all.
