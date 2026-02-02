@@ -173,17 +173,17 @@ app.use("/api/reports", reportsRoutes);
 app.use("/api/quotation", quotationRoutes);
 
 // --- FRONTEND HANDLER (Must be AFTER API routes) ---
-app.get("(.*)", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+app.get('/:any*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
 });
 
 // Global error handler
 app.use(errorHandler);
 
 // 404 handler
-app.use((req, res) => {
-  res.status(404).json({ error: "Route not found" });
-});
+// app.use((req, res) => {
+//   res.status(404).json({ error: "Route not found" });
+// });
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
