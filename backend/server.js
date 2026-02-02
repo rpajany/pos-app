@@ -173,7 +173,7 @@ app.use("/api/reports", reportsRoutes);
 app.use("/api/quotation", quotationRoutes);
 
 // --- FRONTEND HANDLER (Must be AFTER API routes) ---
-app.get('/:any*', (req, res) => {
+app.get('{/*any}', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
 });
 
