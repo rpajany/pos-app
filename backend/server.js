@@ -9,8 +9,16 @@ import { getSyncStatus, startCloudSync } from "./services/syncService.js";
 import logger from "./utils/logger.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
+import path from "path";
+
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// FIX 1: Define __dirname for ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
 
 const ALLOWED_ORIGINS = [
   "http://localhost:4000", // For local development testing
@@ -54,6 +62,10 @@ app.use(cors(corsOptions));
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(cookieParser());
+
+// --- STATIC FILES ---
+// Points to the dist folder inside frontend
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
 // app.set("trust proxy", 1); // trust proxy should match deployment,This is OK only if behind Nginx / Load Balancer / Docker, If not behind proxy → remove it.
 
@@ -111,6 +123,7 @@ const connectDB = async () => {
 
 connectDB();
 
+
 // Sync status endpoint
 app.get("/api/sync/status", async (req, res) => {
   const status = await getSyncStatus();
@@ -159,6 +172,12 @@ app.use("/api/salesPayment", salesPaymentRoutes);
 app.use("/api/purchasePayment", purchasePaymentRoutes);
 app.use("/api/reports", reportsRoutes);
 app.use("/api/quotation", quotationRoutes);
+
+
+// --- FRONTEND HANDLER (Must be AFTER API routes) ---
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+});
 
 // Global error handler
 app.use(errorHandler);
