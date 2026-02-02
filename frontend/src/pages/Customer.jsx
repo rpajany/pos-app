@@ -42,7 +42,7 @@ const fetchCustomers = async () => {
     if (window.confirm("Are you sure?")) {
       try {
         // await safeCall(api.delete(`http://localhost:5000/api/customers/${id}`));
-        await safeCall(api.delete(`/customers/${id}`));
+        await safeCall(api.delete(`/customer/${id}`));
         fetchCustomers();
       } catch (error) {
         console.error("Error deleting customer:", error);
