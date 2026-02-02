@@ -64,7 +64,7 @@ app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(cookieParser());
 
 // --- STATIC FILES ---
-// Points to the dist folder inside frontend
+app.use('/assets', express.static(path.join(__dirname, '../frontend/dist/assets')));
 app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
 // app.set("trust proxy", 1); // trust proxy should match deployment,This is OK only if behind Nginx / Load Balancer / Docker, If not behind proxy → remove it.
