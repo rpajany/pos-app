@@ -72,7 +72,7 @@ export const Login = () => {
       {/* --- HEADER --- */}
       <header className="w-full p-2 bg-gray-300 border-b shadow-sm">
         <div>
-          <div className="font-bold text-xl text-blue-600">MyStore</div>
+          <div className="font-bold text-xl text-blue-600">POS-App</div>
         </div>
       </header>
 

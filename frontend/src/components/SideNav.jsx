@@ -17,6 +17,7 @@ import {
   Database,
   Wallet,
   SquarePercent,
+  FileCheckCorner,
   BadgePercent
 } from "lucide-react";
 
@@ -49,7 +50,7 @@ export default function SideNav() {
     { icon: <ShoppingBag size={20} />, label: "Sales Bill", path: "/sales" },
     { icon: <ShoppingCart  size={20} />, label: "Purchase", path: "/purchase" },
     { icon: <Wallet size={20} />, label: "Expenses", path: "/expenses" },
-    { icon: <Wallet size={20} />, label: "Quotation", path: "/quotation" },
+    { icon: <FileCheckCorner size={20} />, label: "Quotation", path: "/quotation" },
     // REPORTS DROPDOWN
     {
       label: "Reports",
