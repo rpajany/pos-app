@@ -65,33 +65,37 @@ export default function SideNav() {
   return (
     <>
       {/* MOBILE TOGGLE BUTTON (Only visible on small screens) */}
+      {/* MOBILE TOGGLE BUTTON: 
+          Adjusted top-3 for better alignment inside the Header area. 
+      */}
       <button 
         onClick={() => setIsMobileOpen(!isMobileOpen)}
-        className="fixed top-4 left-4 z-50 p-2 bg-blue-900 text-white rounded-md md:hidden shadow-lg"
+        className="fixed top-3 left-4 z-60 p-2 bg-blue-900 text-white rounded-md md:hidden shadow-lg active:scale-90 transition-transform"
       >
-        {isMobileOpen ? <X size={24} /> : <Menu size={24} />}
+        {isMobileOpen ? <X size={20} /> : <Menu size={20} />}
       </button>
 
       {/* MOBILE OVERLAY (Closes sidebar when clicking outside) */}
       {isMobileOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          className="fixed inset-0 bg-black/60 z-45 md:hidden"
           onClick={() => setIsMobileOpen(false)}
         />
       )}
 
-      {/* SIDEBAR */}
+      {/* SIDEBAR CONTAINER  / Desktop: Narrow (16/64px) and hover-expand /  Mobile: Full drawer logic  */} 
       <div className={`
         fixed left-0 top-0 h-screen bg-blue-900 text-white flex flex-col transition-all duration-300 ease-in-out z-40 
-        /* Desktop Logic: narrow by default, expands on hover */
-        md:w-16 md:hover:w-64 group shadow-xl 
-        /* Mobile Logic: Hidden by default, slides in when toggled */
+       /* Desktop: Narrow (16/64px) and hover-expand */
+        md:w-16 md:hover:w-64 group shadow-2xl 
+        /* Mobile: Full drawer logic */
         ${isMobileOpen ? "w-64 translate-x-0" : "w-64 -translate-x-full md:translate-x-0"}
       `}>
-        {/* Logo Area */}
-        <div className="flex items-center p-4 mb-4 border-b border-blue-800 overflow-hidden">
+
+        {/* Logo Area (Hidden on mobile because the Header already shows it) */} 
+        <div className="flex items-center p-4 mb-4 border-b border-blue-800 overflow-hidden shrink-0">
           <div className="min-w-[32px] flex justify-center">
-            <img src={company?.logo} alt="Logo" className="w-8 h-8 border rounded-full border-blue-500" />
+            <img src={company?.logo} alt="Logo" className="w-8 h-8 border rounded-full border-blue-500 bg-white p-0.5" />
           </div>
           {/* Change: Allow text to be visible if mobile open OR desktop hover */}
           <span className={`ml-4 font-bold text-xl whitespace-nowrap transition-opacity duration-300 ${isMobileOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
@@ -100,19 +104,20 @@ export default function SideNav() {
         </div>
 
         {/* Menu Items */}
-        <nav className="flex-1 px-2 mt-4 overflow-y-auto no-scrollbar">
+        <nav className="flex-1 px-2 mt-4 overflow-y-auto no-scrollbar space-y-1">
           {menuItems.map((item, index) => {
             if (item.isDropdown) {
               return (
                 <div key={index} className="mb-2">
                   <button onClick={item.onToggle} className="w-full flex items-center p-3 rounded-lg transition-colors hover:bg-blue-700 text-blue-200">
                     <div className="min-w-[32px] flex justify-center">{item.icon}</div>
-                    <span className={`ml-4 flex-1 text-left whitespace-nowrap transition-opacity ${isMobileOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
+                    <span className={`ml-4 flex-1 text-left text-sm font-medium  whitespace-nowrap transition-opacity ${isMobileOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
                       {item.label}
                     </span>
                     <ChevronDown size={16} className={`transition-transform duration-300 ${isMobileOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100"} ${item.isOpen ? "rotate-180" : ""}`} />
                   </button>
 
+              {/* Dropdown Content */}
                   <div className={`overflow-hidden transition-all duration-300 bg-blue-950/50 ${item.isOpen ? "max-h-64 mt-1" : "max-h-0"}`}>
                     {item.subItems.map((sub, subIdx) => (
                       <NavLink 

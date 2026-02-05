@@ -1,38 +1,28 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import { api, safeCall } from "@/services/ApiService";
-import { InputField } from "@/components/InputField";
-import {SupplierFormModal} from "@/components/SupplierFormModal";
-import { Plus, X, Search, Download } from "lucide-react";
+import { SupplierFormModal } from "@/components/SupplierFormModal";
+import { Plus, Search, Download, Edit2, Trash2, Mail, Phone, Hash, UserCircle } from "lucide-react";
 
 export const SupplierPage = () => {
   const [suppliers, setSuppliers] = useState([]);
-  const [searchTerm, setSearchTerm] = useState(""); // Search state
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    contactPerson: "",
-    phone: "",
-    email: "",
-    gstNumber: "",
-    address: "",
-    pinCode: "",
-    state: "",
-    state_code: 0,
-  });
-  const [editingId, setEditingId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingData, setEditingData] = useState(null);
 
   const fetchSuppliers = async () => {
+    setLoading(true);
     const res = await safeCall(api.get("/supplier"));
-    setSuppliers(res.data);
+    if (res.success) setSuppliers(res.data);
+    setLoading(false);
   };
 
   useEffect(() => {
     fetchSuppliers();
   }, []);
 
-  // Filter Logic: Check name, phone, or gstNumber
   const filteredSuppliers = suppliers?.filter((s) => {
     const search = searchTerm.toLowerCase();
     return (
@@ -42,37 +32,14 @@ export const SupplierPage = () => {
     );
   });
 
-  const resetForm = () => {
-    setFormData({
-      name: "",
-      contactPerson: "",
-      phone: "",
-      email: "",
-      gstNumber: "",
-      address: "",
-      pinCode: "",
-      state: "",
-      state_code: 0,
-    });
-    setEditingId(null);
-    setIsFormOpen(false);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (editingId) {
-      await safeCall(api.put(`/supplier/${editingId}`, formData));
-    } else {
-      await safeCall(api.post("/supplier", formData));
-    }
-    resetForm();
-    fetchSuppliers();
-  };
-
   const handleEdit = (supplier) => {
-    setFormData(supplier);
-    setEditingId(supplier._id);
-    setIsFormOpen(true);
+    setEditingData(supplier);
+    setIsModalOpen(true);
+  };
+
+  const handleAddNew = () => {
+    setEditingData(null);
+    setIsModalOpen(true);
   };
 
   const handleDelete = async (id) => {
@@ -82,248 +49,47 @@ export const SupplierPage = () => {
     }
   };
 
-  const handleAddNew = () => {
-    setEditingData(null);
-    setIsModalOpen(true);
-  };
-
   const exportToCSV = () => {
-    // 1. Define the headers
     const headers = ["Name,Contact Person,Phone,Email,GST Number,Address"];
-
-    // 2. Map the supplier data to rows
     const rows = suppliers.map(
-      (s) =>
-        `"${s.name}","${s.contactPerson}","${s.phone}","${s.email}","${
-          s.gstNumber || "N/A"
-        }","${s.address?.replace(/,/g, " ") || ""}"`
+      (s) => `"${s.name}","${s.contactPerson}","${s.phone}","${s.email}","${s.gstNumber || "N/A"}","${s.address?.replace(/,/g, " ") || ""}"`
     );
-
-    // 3. Combine headers and rows
     const csvContent = [headers, ...rows].join("\n");
-
-    // 4. Create a Blob and trigger download
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-
     link.setAttribute("href", url);
-    link.setAttribute(
-      "download",
-      `Suppliers_Export_${new Date().toLocaleDateString()}.csv`
-    );
-    link.style.visibility = "hidden";
-
+    link.setAttribute("download", `Suppliers_${new Date().toLocaleDateString()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
   return (
-    <div className="flex-1 p-6 bg-gray-50 min-h-screen">
+    <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
       {/* Header Section */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">
-            Supplier Management
-          </h2>
-          <p className="text-sm text-gray-500">
-            Manage your business vendors and contact details
-          </p>
+          <h2 className="text-2xl font-bold text-gray-800">Supplier Management</h2>
+          <p className="text-sm text-gray-500">Manage your business vendors and contact details</p>
         </div>
 
-        <div className="flex gap-2">
-          {/* {!isFormOpen && (
-            <button
-              onClick={() => setIsFormOpen(true)}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700 transition shadow-sm"
-            >
-              <Plus size={18} /> Add Supplier
-            </button>
-          )} */}
-
-          <button onClick={handleAddNew} className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+        <div className="flex w-full md:w-auto gap-2">
+          <button 
+            onClick={handleAddNew} 
+            className="flex-1 md:flex-none bg-blue-600 text-white px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-700 transition shadow-md active:scale-95"
+          >
             <Plus size={18} /> Add Supplier
           </button>
-
-          {/* Export Button */}
           <button
             onClick={exportToCSV}
             disabled={suppliers.length === 0}
-            className="bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-green-700 transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 md:flex-none bg-white text-green-700 border border-green-200 px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 hover:bg-green-50 transition shadow-sm disabled:opacity-50"
           >
-            <Download size={18} /> Export CSV
+            <Download size={18} /> Export
           </button>
         </div>
       </div>
-
-      {/* Form Section (Same as previous step)
-      {isFormOpen && (
-        <div className="w-full animate-in fade-in slide-in-from-top-4 duration-300">
-          <form
-            onSubmit={handleSubmit}
-            className="bg-white p-6 rounded-xl shadow-md mb-8 border border-gray-100 relative"
-          >
-            <button
-              type="button"
-              onClick={resetForm}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-            >
-              <X size={20} />
-            </button>
-            <h3 className="text-lg font-semibold mb-4 text-gray-700">
-              {editingId ? "Edit Supplier" : "New Supplier"}
-            </h3>
-            <div className="grid md:grid-cols-3 gap-x-6 gap-y-2">
-              <InputField
-                label="Name"
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                required
-              />
-              <InputField
-                label="Contact Person"
-                value={formData.contactPerson}
-                onChange={(e) =>
-                  setFormData({ ...formData, contactPerson: e.target.value })
-                }
-                required
-              />
-              <InputField
-                label="GST Number"
-                value={formData.gstNumber}
-                onChange={(e) =>
-                  setFormData({ ...formData, gstNumber: e.target.value })
-                }
-              />
-              <InputField
-                label="Phone"
-                value={formData.phone}
-                onChange={(e) =>
-                  setFormData({ ...formData, phone: e.target.value })
-                }
-                required
-              />
-              <InputField
-                label="Email"
-                value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
-                required
-              />
-              <InputField
-                label="Address"
-                value={formData.address}
-                onChange={(e) =>
-                  setFormData({ ...formData, address: e.target.value })
-                }
-                required
-              />
-
-              <InputField
-                type="text"
-                label="PIN Code"
-                name="pincode"
-                placeholder="Pincode"
-                value={formData.pinCode}
-                onChange={(e) =>
-                  setFormData({ ...formData, pinCode: e.target.value })
-                }
-                className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-purple-600"
-              />
-
-              <InputField
-                type="text"
-                label="State"
-                name="state"
-                placeholder="State"
-                value={formData.state}
-                onChange={(e) =>
-                  setFormData({ ...formData, state: e.target.value })
-                }
-                className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-purple-600"
-              />
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-800 mb-1">
-                  State Code
-                </label>
-                <select
-                  name="state_code"
-                  value={formData.state_code}
-                  onChange={(e) =>
-                    setFormData({ ...formData, state_code: e.target.value })
-                  }
-                  className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-purple-600"
-                >
-                  <option value="">-SELECT-</option>
-                  <option value="1">1 Jammu & Kashmir (or Ladakh)</option>
-                  <option value="2">2. Himachal Pradesh</option>
-                  <option value="3">3. Punjab </option>
-                  <option value="4">4. Chandigarh</option>
-                  <option value="5">5. Uttarakhand</option>
-                  <option value="6">6. Haryana</option>
-                  <option value="7">7. Delhi</option>
-                  <option value="8">8. Rajasthan</option>
-                  <option value="9">9. Uttar Pradesh</option>
-                  <option value="10">10. Bihar</option>
-                  <option value="11">11. Sikkim</option>
-                  <option value="12">12. Arunachal Pradesh</option>
-                  <option value="13">13. Nagaland</option>
-                  <option value="14">14. Manipur </option>
-                  <option value="15">15. Mizoram</option>
-                  <option value="16">16. Tripura</option>
-                  <option value="17">17. Meghalaya</option>
-                  <option value="18">18. Assam</option>
-                  <option value="19">19. West Bengal</option>
-                  <option value="20">20. Jharkhand</option>
-                  <option value="21">21. Odisha</option>
-                  <option value="22">22. Chhattisgarh</option>
-                  <option value="23">23. Madhya Pradesh</option>
-                  <option value="24">24. Gujarat</option>
-                  <option value="25">
-                    25. Daman and Diu (now merged with Dadra & Nagar Haveli)
-                  </option>
-                  <option value="26">
-                    26. Dadra and Nagar Haveli and Daman & Diu
-                  </option>
-                  <option value="27">27. Maharashtra</option>
-                  <option value="28">
-                    28. Andhra Pradesh (before division){" "}
-                  </option>
-                  <option value="29">29. Karnataka </option>
-                  <option value="30">30. Goa </option>
-                  <option value="31">31. Lakshadweep</option>
-                  <option value="32">32. Kerala</option>
-                  <option value="33">33. Tamil Nadu</option>
-                  <option value="34">34. Puducherry (Pondicherry) </option>
-                  <option value="35">35. Andaman & Nicobar Islands</option>
-                  <option value="36">36. Telangana</option>
-                  <option value="37">37. Andhra Pradesh (New)</option>
-                </select>
-              </div>
-            </div>
-            <div className="flex gap-3 mt-4">
-              <button
-                type="submit"
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 flex-1 font-semibold"
-              >
-                {editingId ? "Update" : "Save"}
-              </button>
-              <button
-                type="button"
-                onClick={resetForm}
-                className="bg-gray-100 text-gray-600 px-6 py-2 rounded-lg hover:bg-gray-200"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
-      )} */}
 
       <SupplierFormModal 
         isOpen={isModalOpen} 
@@ -333,81 +99,107 @@ export const SupplierPage = () => {
       />
 
       {/* Filter and Search Bar */}
-      <div className="mb-4 flex flex-col md:flex-row md:items-center gap-4 bg-white p-4 rounded-t-xl border border-gray-100 border-b-0">
+      <div className="mb-6 flex flex-col md:flex-row md:items-center gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
         <div className="relative flex-1">
-          <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
-            <Search size={18} />
-          </span>
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
           <input
             type="text"
             placeholder="Search by name, phone, or GST..."
-            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition"
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 transition-all"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <div className="text-sm text-gray-500">
-          Showing <b>{filteredSuppliers?.length || 0}</b> suppliers
+        <div className="text-xs md:text-sm font-medium text-gray-500 bg-gray-100 px-3 py-1.5 rounded-full w-fit">
+          Total Suppliers: {filteredSuppliers?.length || 0}
         </div>
       </div>
 
-      {/* Table Section */}
-      <div className="bg-white rounded-b-xl shadow-sm border border-gray-100 overflow-hidden">
-        <table className="w-full text-left border-collapse">
-          <thead className="bg-gray-50 text-gray-600 uppercase text-xs font-bold">
-            <tr>
-              <th className="p-4 border-b">Name</th>
-              <th className="p-4 border-b">Contact Info</th>
-              <th className="p-4 border-b">GSTIN</th>
-              <th className="p-4 border-b text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="text-gray-700">
-            {filteredSuppliers && filteredSuppliers.length > 0 ? (
-              filteredSuppliers.map((s) => (
-                <tr
-                  key={s._id}
-                  className="hover:bg-gray-50 border-b last:border-0 transition"
-                >
-                  <td className="p-4">
-                    <div className="font-semibold text-blue-900">{s.name}</div>
-                    <div className="text-xs text-gray-400">{s.email}</div>
-                  </td>
-                  <td className="p-4">
-                    <div className="text-sm font-medium">{s.contactPerson}</div>
-                    <div className="text-xs text-gray-500">{s.phone}</div>
-                  </td>
-                  <td className="p-4 font-mono text-xs">
-                    {s.gstNumber || "---"}
-                  </td>
-                  <td className="p-4 text-center">
-                    <button
-                      onClick={() => handleEdit(s)}
-                      className="text-blue-600 hover:underline mr-4"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(s._id)}
-                      className="text-red-500 hover:underline"
-                    >
-                      Delete
-                    </button>
-                  </td>
+      {loading ? (
+        <div className="text-center py-20 text-gray-400">Loading Suppliers...</div>
+      ) : (
+        <>
+          {/* MOBILE LIST VIEW (Cards) */}
+          <div className="grid grid-cols-1 gap-4 md:hidden">
+            {filteredSuppliers?.map((s) => (
+              <div key={s._id} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <h3 className="font-bold text-blue-900 text-lg">{s.name}</h3>
+                    <div className="flex items-center gap-1 text-xs text-gray-400">
+                      <Hash size={12} /> {s.gstNumber || "No GSTIN"}
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={() => handleEdit(s)} className="p-2 text-blue-600 bg-blue-50 rounded-lg"><Edit2 size={18} /></button>
+                    <button onClick={() => handleDelete(s._id)} className="p-2 text-red-600 bg-red-50 rounded-lg"><Trash2 size={18} /></button>
+                  </div>
+                </div>
+                
+                <div className="space-y-2 pt-3 border-t border-gray-50">
+                  <div className="flex items-center gap-3 text-sm text-gray-600">
+                    <UserCircle size={16} className="text-gray-400" />
+                    <span>{s.contactPerson}</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-gray-600">
+                    <Phone size={16} className="text-gray-400" />
+                    <span>{s.phone}</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-gray-600">
+                    <Mail size={16} className="text-gray-400" />
+                    <span className="truncate">{s.email}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* DESKTOP TABLE VIEW */}
+          <div className="hidden md:block bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <table className="w-full text-left">
+              <thead className="bg-gray-50 text-gray-600 uppercase text-xs font-bold">
+                <tr>
+                  <th className="p-4 border-b">Supplier Details</th>
+                  <th className="p-4 border-b">Contact Person</th>
+                  <th className="p-4 border-b">GSTIN</th>
+                  <th className="p-4 border-b text-right">Actions</th>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="4" className="p-12 text-center text-gray-400">
-                  {searchTerm
-                    ? "No suppliers match your search."
-                    : "No suppliers registered yet."}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+              </thead>
+              <tbody className="divide-y divide-gray-100 text-gray-700">
+                {filteredSuppliers?.map((s) => (
+                  <tr key={s._id} className="hover:bg-gray-50 transition">
+                    <td className="p-4">
+                      <div className="font-bold text-blue-900">{s.name}</div>
+                      <div className="text-xs text-gray-400">{s.email}</div>
+                    </td>
+                    <td className="p-4">
+                      <div className="text-sm font-semibold text-gray-700">{s.contactPerson}</div>
+                      <div className="text-xs text-gray-500">{s.phone}</div>
+                    </td>
+                    <td className="p-4">
+                      <span className="bg-gray-100 px-2 py-1 rounded text-xs font-mono">
+                        {s.gstNumber || "---"}
+                      </span>
+                    </td>
+                    <td className="p-4">
+                      <div className="flex justify-end gap-3">
+                        <button onClick={() => handleEdit(s)} className="text-blue-600 hover:bg-blue-50 p-2 rounded-lg"><Edit2 size={18} /></button>
+                        <button onClick={() => handleDelete(s._id)} className="text-red-500 hover:bg-red-50 p-2 rounded-lg"><Trash2 size={18} /></button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+
+      {!loading && filteredSuppliers?.length === 0 && (
+        <div className="bg-white rounded-xl p-12 text-center border border-dashed border-gray-300 mt-4">
+          <p className="text-gray-400">No suppliers found.</p>
+        </div>
+      )}
     </div>
   );
 };

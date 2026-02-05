@@ -1,0 +1,23 @@
+services:
+  server:
+    image: rpajany/pos-app:latest # Pulls from Docker Hub
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - LOCAL_MONGODB_URI=mongodb://db:27017/pos-db  # Connects to the 'db' service below
+      - JWT_SECRET=secretpassord
+      - REFRESH_TOKEN_SECRET=secretpassord
+    depends_on:
+      - db
+
+  db:
+    image: mongo:latest
+    ports:
+      - "27018:27017" # Maps PC port 27018 -> Docker port 27017
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:

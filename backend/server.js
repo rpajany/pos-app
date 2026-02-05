@@ -20,8 +20,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const ALLOWED_ORIGINS = [
-  "http://localhost:4000", // For local development testing
-  "https://pos-app-qdvc.onrender.com", // For local development testing
+  // "http://localhost:4000", // For local development testing
+  "http://localhost:5000", // For local development testing
+  // "https://pos-app-qdvc.onrender.com", // For local development testing
   process.env.FRONTEND_URL, // Your deployed client app
 ].filter(Boolean); // If process.env.FRONTEND_URL is undefined, it will still be in the array.
 
@@ -57,16 +58,25 @@ app.use(
 // 2. CORS: Apply the configured CORS policy
 app.use(cors(corsOptions));
 
-// 3. Built-in Express middleware to parse JSON requests
+//  3. Built-in Express middleware to parse JSON requests
 // app.use(express.json({ limit: "10mb" }));
 // Increase the limit to 50MB (or higher if needed for Base64 images)
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(cookieParser());
 
-// --- STATIC FILES ---
-app.use('/assets', express.static(path.join(__dirname, '../frontend/dist/assets')));
-app.use(express.static(path.join(__dirname, "../frontend/dist")));
+// render : --- STATIC FILES ---
+// app.use('/assets', express.static(path.join(__dirname, '../frontend/dist/assets')));
+// app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+
+// Docker : This points to /app/frontend/dist inside Docker
+const frontendDistPath = path.resolve(__dirname, '../frontend/dist');
+
+// Docker :  Serve static files from the root and assets folder
+app.use(express.static(frontendDistPath));
+app.use('/assets', express.static(path.join(frontendDistPath, 'assets')));
+
 
 // app.set("trust proxy", 1); // trust proxy should match deployment,This is OK only if behind Nginx / Load Balancer / Docker, If not behind proxy → remove it.
 
@@ -96,7 +106,7 @@ app.use(express.static(path.join(__dirname, "../frontend/dist")));
 const connectDB = async () => {
   try {
     await mongoose.connect(
-      process.env.LOCAL_MONGODB_URI || "mongodb://localhost:27017/pos-db-local",
+      process.env.LOCAL_MONGODB_URI  || "mongodb://localhost:27017/pos-db-local",
       {
         maxPoolSize: 10,
       }
@@ -173,9 +183,14 @@ app.use("/api/purchasePayment", purchasePaymentRoutes);
 app.use("/api/reports", reportsRoutes);
 app.use("/api/quotation", quotationRoutes);
 
-// --- FRONTEND HANDLER (Must be AFTER API routes) ---
+// Render : --- FRONTEND HANDLER (Must be AFTER API routes) ---
+// app.get('{/*any}', (req, res) => {
+//   res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+// });
+
+// Docker : The Catch-all (Express 5 syntax)
 app.get('{/*any}', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+  res.sendFile(path.join(frontendDistPath, 'index.html'));
 });
 
 // Global error handler

@@ -12,3 +12,31 @@ git push -u origin main
 git remote add origin https://github.com/rpajany/pos-app.git
 git branch -M main
 git push -u origin main
+
+---------------------------------------------------------------------
+https://gemini.google.com/app/2248fee94e1ea305
+
+# Stop containers and remove the internal network
+docker-compose down
+
+# Build and start with fresh environment variables
+docker-compose up --build
+
+4. Deployment Steps
+Local Testing:
+Open terminal in your root folder.
+
+Run: docker-compose up --build
+
+Your app will be live at http://localhost:5000.
+
+Deploying to Render via Docker:
+Render makes this very simple:
+
+Modify Service: Go to your Render Dashboard for pos-app.
+
+Settings: Change the Runtime from Node to Docker.
+
+Environment Variables: Ensure your MONGO_URI and JWT_SECRET are set in the Render "Environment" tab.
+
+Deploy: Render will automatically detect the Dockerfile, build it, and launch it.
