@@ -118,25 +118,28 @@ export default function SideNav() {
                   </button>
 
               {/* Dropdown Content */}
-                  <div className={`overflow-hidden transition-all duration-300 bg-blue-950/50 ${item.isOpen ? "max-h-64 mt-1" : "max-h-0"}`}>
-                    {item.subItems.map((sub, subIdx) => (
-                      <NavLink 
-                        key={subIdx} 
-                        to={sub.path} 
-                        onClick={() => setIsMobileOpen(false)} // Auto-close on link click
-                        className={({ isActive }) => `
-                          flex items-center py-2.5 pl-4 pr-4 rounded-lg transition-colors mb-1
-                          ${isActive ? "bg-blue-600 text-white" : "hover:bg-blue-800 text-blue-300 text-sm"}
-                          ${isMobileOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100"}
-                        `}
-                      >
-                        <div className="min-w-[32px] flex justify-center ml-8">
-                          {sub.icon ? sub.icon : <div className="w-1 h-1 bg-blue-400 rounded-full" />}
-                        </div>
-                        <span className="ml-4 whitespace-nowrap">{sub.label}</span>
-                      </NavLink>
-                    ))}
-                  </div>
+<div className={`overflow-hidden transition-all duration-300 bg-blue-950/50 
+  ${item.isOpen ? "max-h-[1000px] opacity-100 mt-1" : "max-h-0 opacity-0"}`}>
+  
+  {item.subItems.map((sub, subIdx) => (
+    <NavLink 
+      key={subIdx} 
+      to={sub.path} 
+      onClick={() => setIsMobileOpen(false)} 
+      className={({ isActive }) => `
+        flex items-center py-2.5 pl-4 pr-4 rounded-lg transition-colors mb-1
+        ${isActive ? "bg-blue-600 text-white" : "hover:bg-blue-800 text-blue-300 text-sm"}
+        /* Simplified visibility logic */
+        ${isMobileOpen ? "opacity-100" : "md:opacity-0 md:group-hover:opacity-100"}
+      `}
+    >
+      <div className="min-w-[32px] flex justify-center ml-4 md:ml-8">
+        {sub.icon ? sub.icon : <div className="w-1.5 h-1.5 bg-blue-400 rounded-full" />}
+      </div>
+      <span className="ml-4 whitespace-nowrap">{sub.label}</span>
+    </NavLink>
+  ))}
+</div>
                 </div>
               );
             }
