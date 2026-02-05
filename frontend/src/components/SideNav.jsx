@@ -127,7 +127,7 @@ export default function SideNav() {
                         className={({ isActive }) => `
                           flex items-center py-2.5 pl-4 pr-4 rounded-lg transition-colors mb-1
                           ${isActive ? "bg-blue-600 text-white" : "hover:bg-blue-800 text-blue-300 text-sm"}
-                          ${isMobileOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100"} transition-opacity duration-300
+                          ${isMobileOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100"}
                         `}
                       >
                         <div className="min-w-[32px] flex justify-center ml-8">
