@@ -7,6 +7,7 @@ const companySchema = new mongoose.Schema({
   phone: { type: String, required: true },
   email: { type: String },
   gstNumber: { type: String },
+  forName:{type: String},
   currencySymbol: { type: String, default: "₹" },
   logo: { type: String }, // Base64 string
   bank_name:{type: String},

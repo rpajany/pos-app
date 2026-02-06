@@ -20,12 +20,12 @@ export const PurchasePaymentModal = ({
 
   const [paymentData, setPaymentData] = useState({
     amount_paid: "",
-    pay_type: "Bank",
+    pay_type: "Cash",
     note: "",
   });
 
   const resetForm = () => {
-    setPaymentData({ amount_paid: "", pay_type: "Bank", note: "" });
+    setPaymentData({ amount_paid: "", pay_type: "Cash", note: "" });
     setEditingId(null);
   };
 
@@ -150,9 +150,11 @@ export const PurchasePaymentModal = ({
                 }
               >
                 <option value="Cash">Cash</option>
-                <option value="UPI">UPI</option>
-                <option value="Card">Card</option>
-                <option value="Bank">Bank Transfer</option>
+                    <option value="UPI">UPI</option>
+                    <option value="Card">Card</option>
+                    <option value="Check">Check</option>
+                    <option value="Credit">Credit</option>
+                    <option value="Bank Transfer">Bank Transfer</option>
               </select>
             </div>
             <button

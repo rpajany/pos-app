@@ -1,9 +1,11 @@
 import React from "react";
 import {FileText, Trash2} from "lucide-react";
 import { generateQuotationPDF } from "@/services/quotationPDF";
-
+import { useApp } from "@/context/useApp";
 
 export const QuotationDataTable = ({ data, onStatusClick, onDeleteClick }) => {
+    const { company} = useApp();
+console.log(company)
   const getStatusColor = (status) => {
     const colors = {
       completed: "bg-green-100 text-green-700 border-green-200",
@@ -50,7 +52,7 @@ export const QuotationDataTable = ({ data, onStatusClick, onDeleteClick }) => {
                 <td className="p-4 text-right flex justify-end gap-2">
 
                     <button 
-    onClick={() => generateQuotationPDF(item)}
+    onClick={() => generateQuotationPDF({item, company})}
     className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
     title="Download PDF"
   >

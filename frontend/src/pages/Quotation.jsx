@@ -8,7 +8,10 @@ import { Plus, Save, Trash2, Download, List } from "lucide-react";
 import { QuotationDataTable } from "@/components/QuotationDataTable";
 import { QuotationStatusModal } from "@/components/QuotationStatusModal";
 
+
 export const Quotation = () => {
+
+
   const [isEditable, setIsEditable] = useState(false); // Controls Read-Only state
 
   const [formData, setFormData] = useState({

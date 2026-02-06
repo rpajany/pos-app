@@ -154,9 +154,12 @@ export const SalesPaymentModal = ({ isOpen, onClose, sale, onSuccess }) => {
                   value={paymentData.pay_type}
                   onChange={(e) => setPaymentData({ ...paymentData, pay_type: e.target.value })}
                 >
-                  <option value="Cash">Cash</option>
-                  <option value="UPI">UPI</option>
-                  <option value="Bank">Bank Transfer</option>
+                   <option value="Cash">Cash</option>
+                    <option value="UPI">UPI</option>
+                    <option value="Card">Card</option>
+                    <option value="Check">Check</option>
+                    <option value="Credit">Credit</option>
+                    <option value="Bank Transfer">Bank Transfer</option>
                 </select>
               </div>
             </div>

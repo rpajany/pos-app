@@ -2,6 +2,7 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import autoTable from "jspdf-autotable"; // Import the function directly
 
+
 // Ensure the string is inside " " or ' '
 const logoBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."; 
 
@@ -13,7 +14,10 @@ const sealBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABfcAAAX1CAYAAA
  
  
 
-export const generateQuotationPDF = (data) => {
+export const generateQuotationPDF = (allData) => {
+  // Destructure the values out of the single 'data' object
+  const { item:data, company } = allData;
+
  const doc = new jsPDF({
     orientation: "portrait",
     unit: "mm",
@@ -36,13 +40,13 @@ export const generateQuotationPDF = (data) => {
   // --- HEADER SECTION ---
   doc.setFontSize(16);
   doc.setFont("helvetica", "bold");
-  doc.text("V VISHWAKARMA TECHNOLOGIES", margin, 20);
+  doc.text(`V ${company.name}`, margin, 20);
   
   doc.setFontSize(9);
   doc.setFont("helvetica", "normal");
-  doc.text("No.34, V.O.C Street, Shanmugapuram, Puducherry-605009", margin, 25);
-  doc.text("Mobile: 9994480535 | Email: vishwakatech@gmail.com", margin, 30);
-  doc.text(`GSTIN: 34APPPP5696BIZH`, margin, 35);
+  doc.text(`${company.address}`, margin, 25);
+  doc.text(`Mobile: ${company.phone} | Email: ${company.email}`, margin, 30);
+  doc.text(`GSTIN: ${company.gstNumber}`, margin, 35);
 
     // 3. Horizontal Line
   doc.line(margin, 38, 210 - margin, 38);
@@ -65,8 +69,8 @@ export const generateQuotationPDF = (data) => {
 
   doc.setFont("helvetica", "normal");
   doc.text( `Date: ${new Date(data.date).toLocaleString("en-IN") || ""}`, rightX-50, metaY, { align: "left" }); // [cite_start]// [cite: 10]
-  doc.text(`GSTIN: 34APPPP5696BJZH`, rightX-50, metaY + 5, { align: "left" });
-  doc.text(`MSME: UDYAM-PY-03-0000752`, rightX-50, metaY + 10, { align: "left" });
+  doc.text(`GSTIN: ${company.gstNumber}`, rightX-50, metaY + 5, { align: "left" });
+  // doc.text(`MSME: UDYAM-PY-03-0000752`, rightX-50, metaY + 10, { align: "left" });
 
   // --- CUSTOMER SECTION ---
   const customerY = 60;
@@ -117,12 +121,12 @@ export const generateQuotationPDF = (data) => {
    // --- BANK DETAILS ---
   drawUnderlinedHeader("Bank Details:", margin, finalY);
   const bankData = [
-    ["Account Name", ": VISHWAKARMA TECHNOLOGIES"],
-    ["Account No", ": 39659642248"],
-    ["Bank", ": STATE BANK OF INDIA"],
-    ["Branch", ": JIPMER, PUDUCHERRY"],
-    ["IFS Code", ": SBIN0002238"],
-    ["MICR Code", ": 605002006"]
+    // ["Account Name", ": VISHWAKARMA TECHNOLOGIES"],
+    ["Account No", `: ${company.acNumber}`],
+    ["Bank", `: ${company.bank_name}`],
+    ["Branch", `: ${company.branch}`],
+    ["IFS Code", `: ${company.ifsc}`],
+    ["MICR Code", `: ${company.micr}`]
   ];
 
   autoTable(doc, {
@@ -185,7 +189,9 @@ export const generateQuotationPDF = (data) => {
   doc.setFontSize(8);
   const termsText = [
     `Taxes: ${data.terms?.taxes || "Exclusive GST @ 18%"}`, 
-    `Payment: ${data.terms?.payment || "100% Advance"}` 
+    `Payment: ${data.terms?.payment || "100% Advance"}`, 
+    `Validity: ${data.terms?.validity || ""}`, 
+    `Delivery: ${data.terms?.delivery || ""}`, 
   ];
   doc.text(termsText, secondColX, sectionY + 7);
 
@@ -198,11 +204,11 @@ export const generateQuotationPDF = (data) => {
 
   // const footerY = doc.internal.pageSize.height - 40;
   doc.text("Thanking You,", margin, footerY); //[cite_start]// [cite: 15]
-  doc.text("for VISHWAKARMA TECHNOLOGIES", rightX, footerY, { align: "right" }); //[cite_start]// [cite: 20]
+  doc.text(`for ${company.name}`, rightX, footerY, { align: "right" }); //[cite_start]// [cite: 20]
   doc.setFont("helvetica", "bold");
-  doc.text("R.Pajany", rightX, footerY + 15, { align: "right" }); //[cite_start]// [cite: 21]
+  doc.text(`${company.forName}`, rightX, footerY + 15, { align: "right" }); //[cite_start]// [cite: 21]
   doc.setFont("helvetica", "normal");
-  doc.text("9994480535", rightX, footerY + 20, { align: "right" }); //[cite_start]// [cite: 21]
+  doc.text(`${company.phone}`, rightX, footerY + 20, { align: "right" }); //[cite_start]// [cite: 21]
 
   // --- PAGE NUMBERING ---
   const pageCount = doc.internal.getNumberOfPages();

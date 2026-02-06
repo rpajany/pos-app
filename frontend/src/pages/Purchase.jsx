@@ -697,12 +697,12 @@ export const Purchase = () => {
                     }
                     className=" px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-purple-600"
                   >
-                    <option value="cash">Cash</option>
-                    <option value="card">UPI</option>
-                    <option value="card">Card</option>
-                    <option value="check">Check</option>
-                    <option value="credit">Credit</option>
-                    <option value="credit">Bank Transfer</option>
+                    <option value="Cash">Cash</option>
+                    <option value="UPI">UPI</option>
+                    <option value="Card">Card</option>
+                    <option value="Check">Check</option>
+                    <option value="Credit">Credit</option>
+                    <option value="Bank Transfer">Bank Transfer</option>
                   </select>
                 </div>
 
@@ -794,6 +794,9 @@ export const Purchase = () => {
                 <th className="p-4 text-center text-xs font-bold text-slate-400 uppercase">
                   Status
                 </th>
+                 <th className="p-4 text-left text-xs font-bold text-slate-400 uppercase">
+                  Action
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
@@ -826,7 +829,7 @@ export const Purchase = () => {
                     </span>
                   </td>
 
-                  <td>
+                  {/* <td>
                     <button
                       onClick={() => {
                         setSelectedPurchase(p);
@@ -836,7 +839,29 @@ export const Purchase = () => {
                     >
                       Pay Now
                     </button>
-                  </td>
+                  </td> */}
+
+                   {/* NEW PAYMENT BUTTON COLUMN */}
+                    <td className="p-4">
+                      {p.status !== "completed" ? (
+                        <button
+                        onClick={() => {
+                        setSelectedPurchase(p);
+                        setIsPaymentModalOpen(true);
+                      }}
+                          className="text-xs bg-blue-50 text-blue-600 px-3 py-1 rounded-full border border-blue-200 hover:bg-blue-600 hover:text-white transition"
+                        >
+                          Pay Now
+                        </button>
+                      ) : (
+                        <span className="text-xs text-gray-400 italic">
+                          No Balance
+                        </span>
+                      )}
+                    </td>
+
+
+
                 </tr>
               ))}
             </tbody>
