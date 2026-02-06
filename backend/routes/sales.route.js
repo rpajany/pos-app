@@ -6,6 +6,7 @@ import InvoiceCounter from "../models/InvoiceCounter.js";
 import SalesPayment from "../models/SalesPayment.js";
 import { verifyToken } from "../middleware/auth.middleware.js";
 import { addToSyncQueue } from "../services/syncService.js";
+import StockHistory from "../models/StockHistory.js";
 
 const router = express.Router();
 
@@ -60,183 +61,211 @@ router.get("/load", verifyToken, async (req, res) => {
   }
 });
 
+
+
 // router.post("/insert", verifyToken, async (req, res) => {
-//    try {
-//     const { items, discount = 0, customerId, paymentMethod = "cash", ...saleData } = req.body
+//   try {
+//     const { formData } = req.body;
 
-//     const invoiceNo = await generateInvoiceNumber()
+//     // 1. Generate unique Invoice Number
+//     const invoiceNo = await generateInvoiceNumber();
 
-//     let subtotal = 0
-//     let totalTax = 0
-//     const processedItems = []
+//     // 2. Prepare Sale document using Form Data
+//     const newSale = new Sale({
+//       ...formData, // Spreading formData captures subtotal, totalAmount, etc.
+//       invoiceNo,
+//       status: formData.status || "completed",
+//     });
 
-//     for (const item of items) {
-//       const itemDoc = await Item.findById(item.itemId)
-//       if (!itemDoc) {
-//         return res.status(404).json({ message: `Item ${item.itemId} not found` })
+//     // 3. Save Sale to Database
+//     const savedSale = await newSale.save();
+
+//     // 2. Automatically create the SalesPayment record for this invoice
+//     const initialPayment = new SalesPayment({
+//       invoiceId: savedSale._id,
+//       invoiceNo: savedSale.invoiceNo,
+//       customerId: savedSale.customerId,
+//       customerName: savedSale.customerName,
+//       totalInvoiceAmount: savedSale.totalAmount,
+//       // If the customer paid something upfront during the sale
+//       payments: [{
+//         amount_paid: formData.totalReceived || 0,
+//         pay_type: formData.cashReceived? "Cash" : "UPI",
+//         payment_date: new Date(),
+//         note: "Initial payment during sale"
+//       }]
+//     });
+
+//     await initialPayment.save(); 
+//     // Note: The pre-save middleware we wrote earlier will 
+//     // automatically calculate balanceAmount and paymentStatus here.
+
+//     // 4. Update Stock for each item sold
+//     // We loop through the items array from the request
+//     const stockUpdates = formData.items.map((item) => {
+//       return Item.findByIdAndUpdate(
+//         item.itemId,
+//         { $inc: { stock: -item.quantity } },
+//         { new: true }
+//       );
+//     });
+//     await Promise.all(stockUpdates);
+
+//     // 5. Update Customer Loyalty Points & Update Customer Credit if paymentMethod is 'credit'
+//     // Or if there's a balance remaining in a partial credit payment
+//     // if (formData.customerId && formData.paymentMethod === "credit") {
+//     //   await Customer.findByIdAndUpdate(formData.customerId, {
+//     //     $inc: { currentCredit: formData.totalAmount , loyaltyPoints: formData.pointsEarned}
+//     //   });
+//     // } else if (formData.customerId && formData.balanceChange < 0) {
+//     //   // Optional: If balanceChange is negative, it implies remaining debt
+//     //   await Customer.findByIdAndUpdate(formData.customerId, {
+//     //     $inc: { currentCredit: Math.abs(formData.balanceChange) },
+//     //   });
+//     // }
+
+//     // 5. Update Customer Loyalty Points & Credit Balance
+//     if (formData.customerId) {
+//       // A. ALWAYS Update Loyalty Points (if points were earned)
+//       if (formData.pointsEarned > 0) {
+//         await Customer.findByIdAndUpdate(formData.customerId, {
+//           $inc: { loyaltyPoints: formData.pointsEarned },
+//         });
 //       }
 
-//       const gstPercentage = item.gstPercentage || itemDoc.gstPercentage || 18
-//       const itemDiscount = item.discount || 0
-//       const itemSubtotal = item.sellingPrice * item.quantity - itemDiscount
-//       const gstAmount = calculateItemGST(itemSubtotal, 1, gstPercentage)
-
-//       subtotal += itemSubtotal
-//       totalTax += gstAmount
-
-//       processedItems.push({
-//         itemId: item.itemId,
-//         quantity: item.quantity,
-//         sellingPrice: item.sellingPrice,
-//         discount: itemDiscount,
-//         gstPercentage,
-//         gstAmount: Math.round(gstAmount * 100) / 100,
-//         total: Math.round((itemSubtotal + gstAmount) * 100) / 100,
-//       })
+//       // B. Update Credit Balance ONLY if applicable
+//       if (formData.paymentMethod === "credit") {
+//         await Customer.findByIdAndUpdate(formData.customerId, {
+//           $inc: { currentCredit: formData.totalAmount },
+//         });
+//       } else if (formData.balanceChange < 0) {
+//         // If they paid partially, add the remaining debt to credit
+//         await Customer.findByIdAndUpdate(formData.customerId, {
+//           $inc: { currentCredit: Math.abs(formData.balanceChange) },
+//         });
+//       }
 //     }
 
-//     const newSale = new Sale({
-//       ...saleData,
-//       invoiceNo,
-//       items: processedItems,
-//       customerId,
-//       paymentMethod,
-//       subtotal: Math.round(subtotal * 100) / 100,
-//       totalTax: Math.round(totalTax * 100) / 100,
-//       discount,
-//       totalAmount: Math.round((subtotal + totalTax - discount) * 100) / 100,
-//     })
+//     // 6. Add to Sync Queue for offline/external synchronization
+//     // Passing the savedSale object to ensure data consistency
+//     await addToSyncQueue("sales", "create", savedSale._id.toString(), {
+//       ...savedSale.toObject(),
+//     });
 
-//     await newSale.save()
-
-//     await addToSyncQueue("sales", "create", newSale._id.toString(), {
-//       ...saleData,
-//       invoiceNo,
-//       items: processedItems,
-//       customerId,
-//       paymentMethod,
-//       subtotal: newSale.subtotal,
-//       totalTax: newSale.totalTax,
-//       discount,
-//       totalAmount: newSale.totalAmount,
-//     })
-
-//     // Update stock and customer credit
-//     for (const item of processedItems) {
-//       await Item.findByIdAndUpdate(item.itemId, { $inc: { stock: -item.quantity } })
-//     }
-
-//     if (customerId && paymentMethod === "credit") {
-//       await Customer.findByIdAndUpdate(customerId, { $inc: { currentCredit: newSale.totalAmount } })
-//     }
-
-//     res.status(201).json(newSale)
+//     // 7. Send Success Response
+//     res.status(201).json({
+//       success: true,
+//       message: "Sale completed successfully",
+//       sale: savedSale,
+//     });
 //   } catch (error) {
-//     res.status(400).json({ message: error.message })
+//     console.error("Sale Insertion Error:", error);
+//     res.status(400).json({
+//       success: false,
+//       message: error.message,
+//     });
 //   }
 // });
 
 router.post("/insert", verifyToken, async (req, res) => {
+  // 1. Start the Session for Transaction
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
-    const { formData } = req.body;
+    const { items, ...saleData } = req.body;
+    const processedItems = [];
 
-    // 1. Generate unique Invoice Number
-    const invoiceNo = await generateInvoiceNumber();
+    // 2. Validate Items and Check Stock
+    for (const item of items) {
+      const itemDoc = await Item.findById(item.itemId).session(session);
+      if (!itemDoc) {
+        throw new Error(`Item ${item.itemId} not found`);
+      }
 
-    // 2. Prepare Sale document using Form Data
+      // Optional: Check if enough stock exists before selling
+      if (itemDoc.stock < item.quantity) {
+        throw new Error(`Insufficient stock for ${itemDoc.name}. Available: ${itemDoc.stock}`);
+      }
+
+      processedItems.push({
+        itemId: item.itemId,
+        name: item.name || itemDoc.name,
+        quantity: Number(item.quantity),
+        price: Number(item.price),
+        gstPercentage: item.gstPercentage,
+        total: item.total,
+      });
+    }
+
+    // 3. Save Sale document
     const newSale = new Sale({
-      ...formData, // Spreading formData captures subtotal, totalAmount, etc.
-      invoiceNo,
-      status: formData.status || "completed",
+      ...saleData,
+      items: processedItems,
     });
+    const savedSale = await newSale.save({ session });
 
-    // 3. Save Sale to Database
-    const savedSale = await newSale.save();
-
-    // 2. Automatically create the SalesPayment record for this invoice
+    // 4. Create Payment Tracking Record
     const initialPayment = new SalesPayment({
-      invoiceId: savedSale._id,
+      saleId: savedSale._id,
       invoiceNo: savedSale.invoiceNo,
       customerId: savedSale.customerId,
       customerName: savedSale.customerName,
-      totalInvoiceAmount: savedSale.totalAmount,
-      // If the customer paid something upfront during the sale
+      totalAmount: savedSale.totalAmount,
       payments: [{
-        amount_paid: formData.totalReceived || 0,
-        pay_type: formData.cashReceived? "Cash" : "UPI",
+        amount_paid: saleData.amountPaid || 0,
+        pay_type: saleData.paymentMethod || "Cash",
         payment_date: new Date(),
-        note: "Initial payment during sale"
+        note: "Initial payment at time of sale"
       }]
     });
+    await initialPayment.save({ session });
 
-    await initialPayment.save(); 
-    // Note: The pre-save middleware we wrote earlier will 
-    // automatically calculate balanceAmount and paymentStatus here.
+    // 5. Update Stock AND Create Stock History (OUT)
+    const salesStockUpdates = processedItems.map(async (item) => {
+      // Get the current stock before modification
+      const currentItem = await Item.findById(item.itemId).session(session);
+      const openingStock = currentItem.stock || 0;
+      const closingStock = openingStock - item.quantity;
 
-    // 4. Update Stock for each item sold
-    // We loop through the items array from the request
-    const stockUpdates = formData.items.map((item) => {
-      return Item.findByIdAndUpdate(
+      // Update Item Stock (Atomic Decrease)
+      await Item.findByIdAndUpdate(
         item.itemId,
         { $inc: { stock: -item.quantity } },
-        { new: true }
+        { session, new: true }
       );
-    });
-    await Promise.all(stockUpdates);
 
-    // 5. Update Customer Loyalty Points & Update Customer Credit if paymentMethod is 'credit'
-    // Or if there's a balance remaining in a partial credit payment
-    // if (formData.customerId && formData.paymentMethod === "credit") {
-    //   await Customer.findByIdAndUpdate(formData.customerId, {
-    //     $inc: { currentCredit: formData.totalAmount , loyaltyPoints: formData.pointsEarned}
-    //   });
-    // } else if (formData.customerId && formData.balanceChange < 0) {
-    //   // Optional: If balanceChange is negative, it implies remaining debt
-    //   await Customer.findByIdAndUpdate(formData.customerId, {
-    //     $inc: { currentCredit: Math.abs(formData.balanceChange) },
-    //   });
-    // }
+      // Create Stock History Record
+      const history = new StockHistory({
+        itemId: item.itemId,
+        itemName: item.name,
+        type: "OUT",
+        transactionType: "SALE",
+        referenceId: savedSale._id,
+        referenceNo: savedSale.invoiceNo,
+        quantity: item.quantity,
+        openingStock: openingStock,
+        closingStock: closingStock,
+        date: new Date()
+      });
 
-    // 5. Update Customer Loyalty Points & Credit Balance
-    if (formData.customerId) {
-      // A. ALWAYS Update Loyalty Points (if points were earned)
-      if (formData.pointsEarned > 0) {
-        await Customer.findByIdAndUpdate(formData.customerId, {
-          $inc: { loyaltyPoints: formData.pointsEarned },
-        });
-      }
-
-      // B. Update Credit Balance ONLY if applicable
-      if (formData.paymentMethod === "credit") {
-        await Customer.findByIdAndUpdate(formData.customerId, {
-          $inc: { currentCredit: formData.totalAmount },
-        });
-      } else if (formData.balanceChange < 0) {
-        // If they paid partially, add the remaining debt to credit
-        await Customer.findByIdAndUpdate(formData.customerId, {
-          $inc: { currentCredit: Math.abs(formData.balanceChange) },
-        });
-      }
-    }
-
-    // 6. Add to Sync Queue for offline/external synchronization
-    // Passing the savedSale object to ensure data consistency
-    await addToSyncQueue("sales", "create", savedSale._id.toString(), {
-      ...savedSale.toObject(),
+      return history.save({ session });
     });
 
-    // 7. Send Success Response
-    res.status(201).json({
-      success: true,
-      message: "Sale completed successfully",
-      sale: savedSale,
-    });
+    await Promise.all(salesStockUpdates);
+
+    // 6. COMMIT the transaction
+    await session.commitTransaction();
+    session.endSession();
+
+    res.status(201).json(savedSale);
   } catch (error) {
-    console.error("Sale Insertion Error:", error);
-    res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    // 7. ROLLBACK on any failure
+    await session.abortTransaction();
+    session.endSession();
+
+    console.error("Sales Transaction Error:", error);
+    res.status(400).json({ message: error.message });
   }
 });
 

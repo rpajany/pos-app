@@ -165,6 +165,7 @@ import salesPaymentRoutes from "./routes/salesPayment.route.js";
 import purchasePaymentRoutes from "./routes/purchasePayment.routes.js";
 import reportsRoutes from "./routes/report.routes.js";
 import quotationRoutes from "./routes/quotation.routes.js";
+import stockRoutes from "./routes/stock.route.js";
 
 //  API Routes
 app.use("/api/auth", authRoutes);
@@ -182,6 +183,7 @@ app.use("/api/salesPayment", salesPaymentRoutes);
 app.use("/api/purchasePayment", purchasePaymentRoutes);
 app.use("/api/reports", reportsRoutes);
 app.use("/api/quotation", quotationRoutes);
+app.use("/api/stock", stockRoutes);
 
 // Render : --- FRONTEND HANDLER (Must be AFTER API routes) ---
 // app.get('{/*any}', (req, res) => {

@@ -5,6 +5,7 @@ import Item from "../models/Item.js"
 import  {verifyToken} from '../middleware/auth.middleware.js';
 import PurchasePayment from "../models/PurchasePayment.js";
 import { addToSyncQueue } from "../services/syncService.js"
+import StockHistory from "../models/StockHistory.js";
 
 const router = express.Router()
 
@@ -23,203 +24,36 @@ router.get("/load", verifyToken, async (req, res) => {
   }
 })
 
-// router.post("/insert", verifyToken, async (req, res) => {
-//   try {
-//     const { items, ...purchaseData } = req.body
-
-//     let subtotal = 0
-//     let totalTax = 0
-//     const processedItems = []
-
-//     for (const item of items) {
-//       const itemDoc = await Item.findById(item.itemId)
-//       if (!itemDoc) {
-//         return res.status(404).json({ message: `Item ${item.itemId} not found` })
-//       }
-
-//       const gstPercentage = item.gstPercentage || itemDoc.gstPercentage || 18
-//       const itemTotal = item.purchasePrice * item.quantity
-//       const gstAmount = calculateItemGST(item.purchasePrice, item.quantity, gstPercentage)
-
-//       subtotal += itemTotal
-//       totalTax += gstAmount
-
-//       processedItems.push({
-//         itemId: item.itemId,
-//         quantity: item.quantity,
-//         purchasePrice: item.purchasePrice,
-//         gstPercentage,
-//         gstAmount: Math.round(gstAmount * 100) / 100,
-//         total: Math.round((itemTotal + gstAmount) * 100) / 100,
-//       })
-//     }
-
-//     const newPurchase = new Purchase({
-//       ...purchaseData,
-//       items: processedItems,
-//       subtotal: Math.round(subtotal * 100) / 100,
-//       totalTax: Math.round(totalTax * 100) / 100,
-//       totalAmount: Math.round((subtotal + totalTax - (purchaseData.discount || 0)) * 100) / 100,
-//     })
-
-//     await newPurchase.save()
-
-//     await addToSyncQueue("purchases", "create", newPurchase._id.toString(), {
-//       ...purchaseData,
-//       items: processedItems,
-//       subtotal: newPurchase.subtotal,
-//       totalTax: newPurchase.totalTax,
-//       totalAmount: newPurchase.totalAmount,
-//     })
-
-//     // Update stock
-//     for (const item of processedItems) {
-//       await Item.findByIdAndUpdate(item.itemId, { $inc: { stock: item.quantity } })
-//     }
-
-//     res.status(201).json(newPurchase)
-//   } catch (error) {
-//     res.status(400).json({ message: error.message })
-//   }
-// })
 
 
-// router.post("/insert", verifyToken, async (req, res) => {
-  
-//   try {
 
-//     const { items, ...purchaseData } = req.body;
-//     const processedItems = [];
 
-//     for (const item of items) {
-//       const itemDoc = await Item.findById(item.itemId);
-//       if (!itemDoc) {
-//         return res.status(404).json({ message: `Item ${item.itemId} not found` });
-//       }
-
-//       // Add the missing fields that your Mongoose schema requires
-//       processedItems.push({
-//         itemId: item.itemId,
-//         itemName: item.itemName, // Snapshot name
-//         hsnCode: item.hsnCode,
-//         quantity: item.quantity,
-//         purchasePrice: item.purchasePrice,
-//         discountPercentage: item.discountPercentage || 0,
-//         discountAmount: item.discountAmount || 0,
-//         taxableValue: item.taxableValue, // CRITICAL: This was missing!
-//         gstPercentage: item.gstPercentage,
-//         gstAmount: item.gstAmount,
-//         cgst: item.cgst || 0,
-//         sgst: item.sgst || 0,
-//         igst: item.igst || 0,
-//         total: item.total,
-//       });
-//     }
-
-//     const newPurchase = new Purchase({
-//       ...purchaseData,
-//       items: processedItems,
-//       // Use the totals calculated by your frontend for consistency
-//       totalTaxableValue: purchaseData.totalTaxableValue,
-//       totalCGST: purchaseData.totalCGST,
-//       totalSGST: purchaseData.totalSGST,
-//       totalIGST: purchaseData.totalIGST,
-//       totalTax: purchaseData.totalTax,
-//       totalDiscount: purchaseData.totalDiscount,
-//       totalAmount: purchaseData.totalAmount,
-//     });
-
-//     const savedPurchase = await newPurchase.save();
-
-//     // 2. Automatically create the SalesPayment record for this invoice
-//         const initialPayment = new PurchasePayment({
-//           purchaseId: savedPurchase._id,
-//           purchaseNo: savedPurchase.purchaseNo,
-//           supplierId: savedPurchase.supplierId,
-//           supplierName: savedPurchase.supplierName,
-//           totalPurchaseAmount: savedPurchase.totalAmount,
-//           // If the customer paid something upfront during the sale
-//           payments: [{
-//             amount_paid: purchaseData.amountPaid || 0,
-//             pay_type: purchaseData.paymentMethod || "Cash",
-//             payment_date: new Date(),
-//             note: "Initial payment during sale"
-//           }]
-//         });
-    
-//         await initialPayment.save(); 
-
-//     // Sync Queue (Optional: ensure data matches the saved document)
-//     await addToSyncQueue("purchases", "create", newPurchase._id.toString(), newPurchase);
-
-//     // Update stock - Using $inc to ensure atomic updates
-//     for (const item of processedItems) {
-//       // Check if your field is 'stock' or 'stockQty' based on your Item Master
-//       await Item.findByIdAndUpdate(item.itemId, { 
-//         $inc: { stock: item.quantity } // Matches your itemSchema
-//       });
-//     }
-
-//     res.status(201).json(newPurchase);
-//   } catch (error) {
-//     console.error("Purchase Error:", error); // Helpful for debugging
-//     res.status(400).json({ message: error.message });
-//   }
-// });
 
 // router.post("/insert", verifyToken, async (req, res) => {
 //   // 1. Start the Session
 //   const session = await mongoose.startSession();
 //   session.startTransaction();
-//   try {
 
+//   try {
 //     const { items, ...purchaseData } = req.body;
 //     const processedItems = [];
 
 //     for (const item of items) {
-//       const itemDoc = await Item.findById(item.itemId);
+//       const itemDoc = await Item.findById(item.itemId).session(session); // Pass session
 //       if (!itemDoc) {
-//         return res.status(404).json({ message: `Item ${item.itemId} not found` });
+//         throw new Error(`Item ${item.itemId} not found`);
 //       }
-
-//       // Add the missing fields that your Mongoose schema requires
-//       processedItems.push({
-//         itemId: item.itemId,
-//         itemName: item.itemName, // Snapshot name
-//         hsnCode: item.hsnCode,
-//         quantity: item.quantity,
-//         purchasePrice: item.purchasePrice,
-//         discountPercentage: item.discountPercentage || 0,
-//         discountAmount: item.discountAmount || 0,
-//         taxableValue: item.taxableValue, // CRITICAL: This was missing!
-//         gstPercentage: item.gstPercentage,
-//         gstAmount: item.gstAmount,
-//         cgst: item.cgst || 0,
-//         sgst: item.sgst || 0,
-//         igst: item.igst || 0,
-//         total: item.total,
-//       });
+//       processedItems.push({ ...item }); // (Include your mapping logic here)
 //     }
 
-//     const newPurchase = new Purchase({
-//       ...purchaseData,
-//       items: processedItems,
-//       // Use the totals calculated by your frontend for consistency
-//       totalTaxableValue: purchaseData.totalTaxableValue,
-//       totalCGST: purchaseData.totalCGST,
-//       totalSGST: purchaseData.totalSGST,
-//       totalIGST: purchaseData.totalIGST,
-//       totalTax: purchaseData.totalTax,
-//       totalDiscount: purchaseData.totalDiscount,
-//       totalAmount: purchaseData.totalAmount,
-//     });
+//     // 2. Save Purchase with session
+//     const newPurchase = new Purchase({ ...purchaseData, items: processedItems });
+//     const savedPurchase = await newPurchase.save({ session });
 
-//     const savedPurchase = await newPurchase.save();
-
-//     // 2. Automatically create the PurchasePayment record for this invoice
-//         const initialPayment = new PurchasePayment({
-//           purchaseId: savedPurchase._id,
-//           purchaseNo: savedPurchase.purchaseNo,
+//     // 3. Save Payment with session
+//     const initialPayment = new PurchasePayment({
+//       purchaseId: savedPurchase._id,
+//       purchaseNo: savedPurchase.purchaseNo,
 //           supplierId: savedPurchase.supplierId,
 //           supplierName: savedPurchase.supplierName,
 //           totalPurchaseAmount: savedPurchase.totalAmount,
@@ -230,31 +64,36 @@ router.get("/load", verifyToken, async (req, res) => {
 //             payment_date: new Date(),
 //             note: "Initial payment during sale"
 //           }]
-//         });
-    
-//         await initialPayment.save(); 
+//     });
+//     await initialPayment.save({ session });
 
-//     // Sync Queue (Optional: ensure data matches the saved document)
-//     await addToSyncQueue("purchases", "create", newPurchase._id.toString(), newPurchase);
+//     // 4. Update Stock with session
+//     const stockUpdates = processedItems.map((item) => {
+//       return Item.findByIdAndUpdate(
+//         item.itemId,
+//         { $inc: { stock: item.quantity } },
+//         { session, new: true } // Pass session here
+//       );
+//     });
+//     await Promise.all(stockUpdates);
 
-//     // Update stock - Using $inc to ensure atomic updates
-//     for (const item of processedItems) {
-//       // Check if your field is 'stock' or 'stockQty' based on your Item Master
-//       await Item.findByIdAndUpdate(item.itemId, { 
-//         $inc: { stock: item.quantity } // Matches your itemSchema
-//       });
-//     }
+//     // 5. If everything is successful, COMMIT the changes
+//     await session.commitTransaction();
+//     session.endSession();
 
-//     res.status(201).json(newPurchase);
+//     res.status(201).json(savedPurchase);
 //   } catch (error) {
-//     console.error("Purchase Error:", error); // Helpful for debugging
+//     // 6. If ANY step fails, ROLLBACK all changes
+//     await session.abortTransaction();
+//     session.endSession();
+    
+//     console.error("Transaction Aborted. Error:", error);
 //     res.status(400).json({ message: error.message });
 //   }
 // });
 
-
 router.post("/insert", verifyToken, async (req, res) => {
-  // 1. Start the Session
+  // 1. Start the Session for Transaction
   const session = await mongoose.startSession();
   session.startTransaction();
 
@@ -262,56 +101,96 @@ router.post("/insert", verifyToken, async (req, res) => {
     const { items, ...purchaseData } = req.body;
     const processedItems = [];
 
+    // 2. Validate Items and Map Data
     for (const item of items) {
-      const itemDoc = await Item.findById(item.itemId).session(session); // Pass session
+      const itemDoc = await Item.findById(item.itemId).session(session);
       if (!itemDoc) {
         throw new Error(`Item ${item.itemId} not found`);
       }
-      processedItems.push({ ...item }); // (Include your mapping logic here)
+
+      processedItems.push({
+        itemId: item.itemId,
+        itemName: item.itemName || itemDoc.name,
+        hsnCode: item.hsnCode || itemDoc.hsnCode,
+        quantity: Number(item.quantity),
+        purchasePrice: Number(item.purchasePrice),
+        discountPercentage: item.discountPercentage || 0,
+        discountAmount: item.discountAmount || 0,
+        taxableValue: item.taxableValue,
+        gstPercentage: item.gstPercentage,
+        gstAmount: item.gstAmount,
+        cgst: item.cgst || 0,
+        sgst: item.sgst || 0,
+        igst: item.igst || 0,
+        total: item.total,
+      });
     }
 
-    // 2. Save Purchase with session
-    const newPurchase = new Purchase({ ...purchaseData, items: processedItems });
+    // 3. Save Purchase document
+    const newPurchase = new Purchase({
+      ...purchaseData,
+      items: processedItems,
+    });
     const savedPurchase = await newPurchase.save({ session });
 
-    // 3. Save Payment with session
+    // 4. Save Initial Payment document
     const initialPayment = new PurchasePayment({
       purchaseId: savedPurchase._id,
       purchaseNo: savedPurchase.purchaseNo,
-          supplierId: savedPurchase.supplierId,
-          supplierName: savedPurchase.supplierName,
-          totalPurchaseAmount: savedPurchase.totalAmount,
-          // If the customer paid something upfront during the sale
-          payments: [{
-            amount_paid: purchaseData.amountPaid || 0,
-            pay_type: purchaseData.paymentMethod || "Cash",
-            payment_date: new Date(),
-            note: "Initial payment during sale"
-          }]
+      supplierId: savedPurchase.supplierId,
+      supplierName: savedPurchase.supplierName,
+      totalPurchaseAmount: savedPurchase.totalAmount,
+      payments: [{
+        amount_paid: purchaseData.amountPaid || 0,
+        pay_type: purchaseData.paymentMethod || "Cash",
+        payment_date: new Date(),
+        note: "Initial payment during purchase"
+      }]
     });
     await initialPayment.save({ session });
 
-    // 4. Update Stock with session
-    const stockUpdates = processedItems.map((item) => {
-      return Item.findByIdAndUpdate(
+    // 5. Update Stock AND Create Stock History for each item
+    // We use a loop here to capture the Opening Stock for the History log
+    for (const item of processedItems) {
+      // Find current state to record history
+      const currentItem = await Item.findById(item.itemId).session(session);
+      const openingStock = currentItem.stock || 0;
+      const closingStock = openingStock + item.quantity;
+
+      // Update Item Stock
+      await Item.findByIdAndUpdate(
         item.itemId,
         { $inc: { stock: item.quantity } },
-        { session, new: true } // Pass session here
+        { session, new: true }
       );
-    });
-    await Promise.all(stockUpdates);
 
-    // 5. If everything is successful, COMMIT the changes
+      // Create Stock History Record
+      const history = new StockHistory({
+        itemId: item.itemId,
+        itemName: item.itemName,
+        type: "IN",
+        transactionType: "PURCHASE",
+        referenceId: savedPurchase._id,
+        referenceNo: savedPurchase.purchaseNo,
+        quantity: item.quantity,
+        openingStock: openingStock,
+        closingStock: closingStock,
+        date: new Date()
+      });
+      await history.save({ session });
+    }
+
+    // 6. COMMIT all changes if everything passed
     await session.commitTransaction();
     session.endSession();
 
     res.status(201).json(savedPurchase);
   } catch (error) {
-    // 6. If ANY step fails, ROLLBACK all changes
+    // 7. ROLLBACK if anything failed (No purchase, no payment, and no stock change will be saved)
     await session.abortTransaction();
     session.endSession();
     
-    console.error("Transaction Aborted. Error:", error);
+    console.error("Purchase Transaction Failed:", error);
     res.status(400).json({ message: error.message });
   }
 });

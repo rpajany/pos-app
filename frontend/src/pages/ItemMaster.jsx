@@ -428,9 +428,11 @@ export const ItemMaster = () => {
     setSelectedItemName(itemName);
     setLoading(true);
     try {
-      // Calling the ledger endpoint
-      const result = await safeCall(api.get(`/item_master/ledger/${itemId}`));
-      if (result.success) {
+      // Updated endpoint to match the backend route
+      const result = await api.get(`/stock/history/${itemId}`); 
+      // Note: adjust the path above if your backend router is different
+      
+      if (result.data) {
         setHistoryData(result.data);
         setShowHistoryModal(true);
       }
@@ -440,7 +442,7 @@ export const ItemMaster = () => {
     } finally {
       setLoading(false);
     }
-  };
+};
 
   useEffect(() => {
     const term = searchTerm.toLowerCase();
@@ -939,75 +941,78 @@ export const ItemMaster = () => {
       </div>
 
       {showHistoryModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl overflow-hidden">
-            <div className="flex justify-between items-center p-4 bg-gray-100 border-b">
-              <h3 className="font-bold text-lg">
-                Stock History: {selectedItemName}
-              </h3>
-              <button
-                onClick={() => setShowHistoryModal(false)}
-                className="text-2xl"
-              >
-                &times;
-              </button>
-            </div>
+  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl overflow-hidden">
+      <div className="flex justify-between items-center p-4 bg-blue-900 text-white border-b">
+        <h3 className="font-bold text-lg">
+          Stock Ledger: {selectedItemName}
+        </h3>
+        <button onClick={() => setShowHistoryModal(false)} className="text-2xl hover:text-gray-300">
+          &times;
+        </button>
+      </div>
 
-            <div className="p-4 max-h-[60vh] overflow-y-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="bg-gray-50 uppercase text-xs">
-                  <tr>
-                    <th className="px-4 py-2">Date</th>
-                    <th className="px-4 py-2">Change</th>
-                    <th className="px-4 py-2">Final Stock</th>
-                    <th className="px-4 py-2">Reason</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y">
-                  {historyData.map((log, index) => (
-                    <tr key={index} className="hover:bg-gray-50">
-                      <td className="px-4 py-2">
-                        {new Date(log.timestamp).toLocaleString()}
-                      </td>
-                      <td
-                        className={`px-4 py-2 font-bold ${
-                          log.changeQuantity >= 0
-                            ? "text-green-600"
-                            : "text-red-600"
-                        }`}
-                      >
-                        {log.changeQuantity >= 0
-                          ? `+${log.changeQuantity}`
-                          : log.changeQuantity}
-                      </td>
-                      <td className="px-4 py-2 font-medium">
-                        {log.finalStock}
-                      </td>
-                      <td className="px-4 py-2 text-gray-600">{log.reason}</td>
-                    </tr>
-                  ))}
-                  {historyData.length === 0 && (
-                    <tr>
-                      <td colSpan="4" className="text-center py-4">
-                        No history found for this item.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+      <div className="p-4 max-h-[65vh] overflow-y-auto">
+        <table className="w-full text-sm text-left border-collapse">
+          <thead className="bg-gray-100 sticky top-0 uppercase text-xs font-semibold">
+            <tr>
+              <th className="px-4 py-3 border">Date</th>
+              <th className="px-4 py-3 border">Type</th>
+              <th className="px-4 py-3 border">Ref No</th>
+              <th className="px-4 py-3 border text-right">In/Out</th>
+              <th className="px-4 py-3 border text-right">Balance</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {historyData.map((log, index) => (
+              <tr key={index} className="hover:bg-blue-50 transition-colors">
+                <td className="px-4 py-2 border whitespace-nowrap">
+                  {new Date(log.date).toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' })}
+                </td>
+                <td className="px-4 py-2 border">
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                    log.transactionType === 'PURCHASE' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+                  }`}>
+                    {log.transactionType}
+                  </span>
+                </td>
+                <td className="px-4 py-2 border font-mono text-xs">
+                  {log.referenceNo}
+                </td>
+                <td className={`px-4 py-2 border text-right font-bold ${
+                    log.type === "IN" ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  {log.type === "IN" ? `+${log.quantity}` : `-${log.quantity}`}
+                </td>
+                <td className="px-4 py-2 border text-right font-medium bg-gray-50">
+                  {log.closingStock}
+                </td>
+              </tr>
+            ))}
+            {historyData.length === 0 && (
+              <tr>
+                <td colSpan="5" className="text-center py-10 text-gray-500">
+                  No stock movements recorded for this item.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
-            <div className="p-4 bg-gray-50 border-t text-right">
-              <button
-                onClick={() => setShowHistoryModal(false)}
-                className="bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-700"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <div className="p-4 bg-gray-50 border-t flex justify-between items-center">
+        <p className="text-xs text-gray-500 italic">* Shows both Purchases (IN) and Sales (OUT)</p>
+        <button
+          onClick={() => setShowHistoryModal(false)}
+          className="bg-blue-900 text-white px-6 py-2 rounded-md hover:bg-blue-800 transition-shadow shadow-md"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 };
