@@ -1,4 +1,5 @@
 import express from "express";
+import mongoose from "mongoose";
 import Sale from "../models/Sale.js";
 import Item from "../models/Item.js";
 import Customer from "../models/Customer.js";
