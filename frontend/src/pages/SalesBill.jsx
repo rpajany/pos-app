@@ -14,6 +14,8 @@ import { PrintA5Invoice } from "@/services/PrintA5Invoice";
 import { CustomerFormModal } from "@/components/CustomerFormModal";
 import { SalesPaymentModal } from "@/components/SalesPaymentModal";
 import { CircleX, SquareX } from "lucide-react";
+import { toast } from "react-toastify";
+
 
 export const SalesBill = () => {
   const [sales, setSales] = useState([]);
@@ -50,7 +52,7 @@ export const SalesBill = () => {
     totalPrice: 0,
     totalDiscount: 0,
     totalAmount: 0,
-    paymentMethod: "cash",
+    paymentMethod: "Cash",
     status: "completed",
     notes: "",
     cashReceived: 0,
@@ -457,7 +459,7 @@ export const SalesBill = () => {
 
     let updateStatus;
 
-    if (totalReceived >= formData.totalAmount) {
+    if (totalReceived >= formData.totalAmount ) {
       updateStatus = "completed";
     } else {
       updateStatus = "pending";
@@ -673,7 +675,8 @@ export const SalesBill = () => {
         setSelectedSale(response.data);
 
         // Corrected template literal syntax (fixed the ₹ placement and backticks)
-        alert(`Sale created successfully! Invoice #${response.data.sale.invoiceNo}`);
+        // alert(`Sale created successfully! Invoice #${response.data.sale.invoiceNo}`);
+        toast.success(`Saved Invoice #${response.data.sale.invoiceNo}`)
 
         // Optional: Handle printing
         if (handlePrintReceipt)
@@ -938,11 +941,12 @@ export const SalesBill = () => {
                   onChange={handleInputChange}
                   className="px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-purple-600"
                 >
-                  <option value="cash">Cash</option>
-                  <option value="card">UPI</option>
-                  <option value="card">Card</option>
-                  <option value="check">Check</option>
-                  <option value="credit">Credit</option>
+                  <option value="Cash">Cash</option>
+                  <option value="UPI">UPI</option>
+                  <option value="Card">Card</option>
+                  <option value="Check">Check</option>
+                  <option value="Credit">Credit</option>
+                  <option value="Bank Transfer">Bank Transfer</option>
                 </select>
               </div>
 

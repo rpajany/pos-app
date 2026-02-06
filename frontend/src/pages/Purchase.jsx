@@ -17,6 +17,7 @@ import {
   Plus,
 } from "lucide-react";
 import { PurchasePaymentModal } from "@/components/PurchasePaymentModal";
+import { toast } from "react-toastify";
 
 export const Purchase = () => {
   const { fetchSuppliers } = useApp();
@@ -48,7 +49,7 @@ export const Purchase = () => {
     totalTax: 0,
     totalDiscount: 0,
     totalAmount: 0,
-    paymentMethod: "cash",
+    paymentMethod: "Cash",
     amountPaid: 0,
     amountBalance: 0,
     status: "pending",
@@ -320,10 +321,14 @@ export const Purchase = () => {
       : await safeCall(api.post("/purchase/insert", formData));
 
     if (response.success) {
-      resetForm();
-      fetchPurchases();
-      setShowForm(false);
+      toast.success("Purchase Add/Update Success !");
+    } else if (response.message) {
+      toast.error(`Error : ${response.message}`);
     }
+
+    resetForm();
+    fetchPurchases();
+    setShowForm(false);
   };
 
   // --- 4. KEYBOARD SHORTCUTS ---
@@ -342,19 +347,17 @@ export const Purchase = () => {
     setIsModalOpen(true);
   };
 
-
-  useEffect(()=>{
-
+  useEffect(() => {
     const amtPaid = Number(formData.amountPaid).toFixed(2);
-    const balanceAmt = Number(formData.totalAmount) - Number(formData.amountPaid);
+    const balanceAmt =
+      Number(formData.totalAmount) - Number(formData.amountPaid);
 
-    setFormData((prev)=>({
+    setFormData((prev) => ({
       ...prev,
-  
-      amountBalance:balanceAmt.toFixed(2)
-    }))
-  },[formData.totalAmount, formData.amountPaid])
 
+      amountBalance: balanceAmt.toFixed(2),
+    }));
+  }, [formData.totalAmount, formData.amountPaid]);
 
   return (
     <div className="min-h-screen bg-[#f8fafc] p-4 md:p-8">
@@ -699,22 +702,20 @@ export const Purchase = () => {
                     <option value="card">Card</option>
                     <option value="check">Check</option>
                     <option value="credit">Credit</option>
+                    <option value="credit">Bank Transfer</option>
                   </select>
                 </div>
 
                 <div className="flex justify-between items-center">
-                
-                    <span className="text-md   text-slate-700">Amount Paid</span>
-                    {/* <label className="block">Amount Paid</label> */}
-                    <InputField
-                      type="text"
-                      value={(formData.amountPaid || 0)}
-                      onChange={(e) =>
-                        setFormData({ ...formData, amountPaid: e.target.value })
-                      }
-                   
-                    />
-                 
+                  <span className="text-md   text-slate-700">Amount Paid</span>
+                  {/* <label className="block">Amount Paid</label> */}
+                  <InputField
+                    type="text"
+                    value={formData.amountPaid || 0}
+                    onChange={(e) =>
+                      setFormData({ ...formData, amountPaid: e.target.value })
+                    }
+                  />
                 </div>
 
                 <div className="flex justify-between items-center">
@@ -723,7 +724,7 @@ export const Purchase = () => {
                   </span>
                   <InputField
                     type="text"
-                    value={(formData.amountBalance || 0)}
+                    value={formData.amountBalance || 0}
                     // onChange={(e) =>
                     //   setFormData({
                     //     ...formData,

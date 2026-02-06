@@ -14,6 +14,7 @@ npm i axios
  npm i recharts
  npm i jsbarcode
  npm install jspdf jspdf-autotable
+ npm i react-toastify
 
  https://www.zoho.com/in/books/kb/gst/valid-state-codes-list.html
 

@@ -20,7 +20,8 @@ const salesPaymentSchema = new mongoose.Schema({
       payment_date: { type: Date, default: Date.now },
       pay_type: { 
         type: String, 
-        enum: ["Cash", "UPI", "Card", "Bank Transfer"], 
+         enum: ["Cash", "UPI", "Card", "check", "credit","Bank Transfer"],
+   
         required: true 
       },
       amount_paid: { type: Number, required: true },

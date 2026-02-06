@@ -4,6 +4,10 @@ import { api, safeCall } from "@/services/ApiService";
 import { InputField } from "@/components/InputField";
 import { X } from "lucide-react"; // Optional: for close icon
 
+import { toast } from "react-toastify";
+
+
+
 export const CustomerFormModal = ({ isOpen, onClose, onSuccess, initialData = null }) => {
   const [formData, setFormData] = useState({
     customerCode: "",
@@ -46,14 +50,21 @@ export const CustomerFormModal = ({ isOpen, onClose, onSuccess, initialData = nu
     e.preventDefault();
     try {
       if (initialData?._id) {
-        await safeCall(api.put(`/customer/${initialData._id}`, formData));
+       const res1 = await safeCall(api.put(`/customer/${initialData._id}`, formData));
+       if(res1.success){
+        toast.success(`Customer Updated Success !`)
+       }
       } else {
-        await safeCall(api.post("/customer", formData));
+        const res = await safeCall(api.post("/customer", formData));
+         if(res.success){
+        toast.success(`Customer Added Success !`)
+       }
       }
       onSuccess(); // Refresh parent list
       onClose();   // Close modal
     } catch (error) {
       console.error("Error saving customer:", error);
+      toast.error(`Error : ${error}`)
     }
   };
 

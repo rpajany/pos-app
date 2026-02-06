@@ -56,8 +56,9 @@ const purchaseSchema = new mongoose.Schema(
 
     paymentMethod: {
     type: String,
-    enum: ["cash", "UPI", "card", "check", "credit"],
-    default: "cash",
+  
+    enum: ["Cash", "UPI", "Card", "Check", "Credit","Bank Transfer"],
+    default: "Cash",
   },
     amountPaid: { type: Number, default: 0 },
     amountBalance: { type: Number, default: 0 },

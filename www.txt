@@ -16,8 +16,11 @@ git push -u origin main
 ---------------------------------------------------------------------
 https://gemini.google.com/app/2248fee94e1ea305
 
-# Stop containers and remove the internal network
-docker-compose down
+# Stop and remove the current containers
+docker compose down
+
+# Start them back up (this forces Docker to read the 'command' line)
+docker compose up -d
 
 # Build and start with fresh environment variables
 docker-compose up --build

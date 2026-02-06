@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { api, safeCall } from "@/services/ApiService";
 import { CustomerFormModal } from "@/components/CustomerFormModal";
 import { UserPlus, Search, Edit2, Trash2, Phone, MapPin, CreditCard } from "lucide-react";
+import { toast } from "react-toastify";
+
 
 export const Customer = () => {
   const [customers, setCustomers] = useState([]);
@@ -33,7 +35,12 @@ export const Customer = () => {
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this customer?")) {
-      await safeCall(api.delete(`/customer/${id}`));
+      const response =  await safeCall(api.delete(`/customer/${id}`));
+      if (response.success) {
+      toast.success("Customer Delete Success !");
+    } else if (response.message) {
+      toast.error(`Error : ${response.message}`);
+    }
       fetchCustomers();
     }
   };

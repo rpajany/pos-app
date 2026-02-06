@@ -164,7 +164,7 @@ export default function SideNav() {
         </nav>
 
         {/* Logout */}
-        <div className="p-2 border-t border-blue-800 shrink-0">
+        <div className="p-2 border-t border-blue-800 shrink-0 mb-6">
           <button onClick={handleLogout} className="w-full flex items-center p-3 rounded-lg hover:bg-red-600 transition-colors">
             <div className="min-w-[32px] flex justify-center text-red-400">
               <LogOut size={20} />
