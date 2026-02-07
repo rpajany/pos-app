@@ -20,6 +20,7 @@ import { PurchaseGSTReport } from "@/pages/PurchaseGSTReport";
 import { SalesPaymentReport } from "@/pages/SalesPaymentReport";
 import { PurchasePaymentReport } from "@/pages/PurchasePaymentReport";
 import { Quotation } from "@/pages/Quotation";
+import StockHistoryReport from "@/pages/StockHistoryReport";
 
 export const AllRoutes = () => {
   return (
@@ -46,6 +47,7 @@ export const AllRoutes = () => {
             <Route path="/salesPaymentReport" element={<SalesPaymentReport />} />
             <Route path="/purchasePaymentReport" element={<PurchasePaymentReport />} />
             <Route path="/quotation" element={<Quotation />} />
+            <Route path="/stockHistoryReport" element={<StockHistoryReport />} />
             {/* <Route path="/profile" element={<UserProfile />} /> */}
 
             {/* Accessible only by ADMINS */}

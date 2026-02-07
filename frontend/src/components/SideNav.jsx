@@ -63,6 +63,7 @@ export default function SideNav() {
         { icon: <BadgePercent size={20} />, label: "Purchase GST", path: "/purchasegstReport" },
         { icon: <BadgePercent size={20} />, label: "Sales Payment", path: "/salesPaymentReport" },
         { icon: <BadgePercent size={20} />, label: "Purchase Payment", path: "/purchasePaymentReport" },
+        { icon: <BadgePercent size={20} />, label: "Stock History", path: "/stockHistoryReport" },
       ],
     },
   ];

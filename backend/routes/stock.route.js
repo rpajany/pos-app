@@ -33,11 +33,31 @@ router.get("/history/:itemId", verifyToken, async (req, res) => {
  * @route   GET /api/stock/summary
  * @desc    Get global stock movements (Optional: for a dashboard)
  */
+// router.get("/summary", verifyToken, async (req, res) => {
+//   try {
+//     const totalMovements = await StockHistory.find()
+//       .sort({ date: -1 })
+//       .limit(50);
+//     res.json(totalMovements);
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// });
+
 router.get("/summary", verifyToken, async (req, res) => {
   try {
-    const totalMovements = await StockHistory.find()
+    const { startDate, endDate } = req.query;
+    let query = {};
+
+    if (startDate || endDate) {
+      query.date = {};
+      if (startDate) query.date.$gte = new Date(new Date(startDate).setHours(0, 0, 0, 0));
+      if (endDate) query.date.$lte = new Date(new Date(endDate).setHours(23, 59, 59, 999));
+    }
+
+    const totalMovements = await StockHistory.find(query)
       .sort({ date: -1 })
-      .limit(50);
+      .limit(500); // Increased limit for report
     res.json(totalMovements);
   } catch (error) {
     res.status(500).json({ message: error.message });

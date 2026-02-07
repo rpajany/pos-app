@@ -38,9 +38,10 @@ export const generateQuotationPDF = (allData) => {
   };
 
   // --- HEADER SECTION ---
+    doc.addImage(company.logo, 'PNG', margin ,  15, 5, 5);
   doc.setFontSize(16);
   doc.setFont("helvetica", "bold");
-  doc.text(`V ${company.name}`, margin, 20);
+  doc.text(`${company.name}`, margin+7, 20);
   
   doc.setFontSize(9);
   doc.setFont("helvetica", "normal");
@@ -112,7 +113,7 @@ export const generateQuotationPDF = (allData) => {
   let finalY = doc.lastAutoTable.finalY + 10;
   doc.setFontSize(10);
   doc.text(`Sub-Total: Rs. ${data.subTotal || "300"}`, rightX, finalY, { align: "right" }); //[cite_start]// [cite: 17]
-  doc.text(`GST (5%): Rs. ${data.taxAmount || "15"}`, rightX, finalY + 6, { align: "right" }); //[cite_start]// [cite: 18]
+  doc.text(`GST (${data.taxPercentage}%): Rs. ${data.taxAmount || "15"}`, rightX, finalY + 6, { align: "right" }); //[cite_start]// [cite: 18]
   doc.setFont("helvetica", "bold");
   doc.text(`Grand Total: Rs. ${data.totalAmount || "315"}`, rightX, finalY + 14, { align: "right" }); // [cite_start]// [cite: 19]
 

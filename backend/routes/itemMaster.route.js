@@ -3,7 +3,8 @@ import mongoose from "mongoose";
 import Item from "../models/Item.js";
 import { verifyToken } from "../middleware/auth.middleware.js";
 import { addToSyncQueue } from "../services/syncService.js";
-import StockLedger from "../models/StockLedger.js";
+// import StockLedger from "../models/Not_Used_StockLedger.js";
+import StockHistory from "../models/StockHistory.js";
 
 const router = express.Router();
 
@@ -16,24 +17,40 @@ router.get("/load", verifyToken, async (req, res) => {
   }
 });
 
-// router.post("/insert", verifyToken, async (req, res) => {
-//   try {
-//     const newItem = new Item(req.body);
-//   const savedItem = await newItem.save();
 
-//     // Log the initial ledger stock entry
+
+// router.post("/insert", verifyToken, async (req, res) => {
+//   // Start a Session for the transaction
+//   const session = await mongoose.startSession();
+//   session.startTransaction();
+
+//   try {
+//     // 1. Save the Item
+//     const newItem = new Item(req.body);
+//     const savedItem = await newItem.save({ session });
+
+//     // 2. Log to Stock Ledger
 //     const ledgerEntry = new StockLedger({
 //       itemId: savedItem._id,
-//       changeQuantity: savedItem.stock,
-//       finalStock: savedItem.stock,
+//       changeQuantity: savedItem.stock || 0,
+//       finalStock: savedItem.stock || 0,
 //       reason: "Initial Entry",
 //     });
-//     await ledgerEntry.save();
+//     await ledgerEntry.save({ session });
 
+//     // 3. Add to Sync Queue
 //     await addToSyncQueue("items", "create", savedItem._id.toString(), req.body);
+
+//     // If everything is successful, COMMIT the changes to the database
+//     await session.commitTransaction();
+//     session.endSession();
 
 //     res.status(201).json(savedItem);
 //   } catch (error) {
+//     // If ANY step fails, UNDO everything done in this session
+//     await session.abortTransaction();
+//     session.endSession();
+    
 //     res.status(400).json({ message: error.message });
 //   }
 // });
@@ -48,14 +65,24 @@ router.post("/insert", verifyToken, async (req, res) => {
     const newItem = new Item(req.body);
     const savedItem = await newItem.save({ session });
 
-    // 2. Log to Stock Ledger
-    const ledgerEntry = new StockLedger({
+    // 2. Log to Stock History (Initial Stock)
+    // We treat the starting stock as an "ADJUSTMENT" or "INITIAL" type
+    const initialStock = Number(req.body.stock) || 0;
+    
+    const stockHistory = new StockHistory({
       itemId: savedItem._id,
-      changeQuantity: savedItem.stock || 0,
-      finalStock: savedItem.stock || 0,
-      reason: "Initial Entry",
+      itemName: savedItem.name,
+      type: "IN", // Stock is coming into the system
+      transactionType: "ADJUSTMENT", // Or "INITIAL" depending on your enum
+      referenceId: savedItem._id, // Reference itself since it's the opening entry
+      referenceNo: "OPENING-STOCK",
+      quantity: initialStock,
+      openingStock: 0, // It was a new item, so it started at 0
+      closingStock: initialStock,
+      date: new Date()
     });
-    await ledgerEntry.save({ session });
+
+    await stockHistory.save({ session });
 
     // 3. Add to Sync Queue
     await addToSyncQueue("items", "create", savedItem._id.toString(), req.body);
@@ -70,6 +97,7 @@ router.post("/insert", verifyToken, async (req, res) => {
     await session.abortTransaction();
     session.endSession();
     
+    console.error("Item Insert Error:", error);
     res.status(400).json({ message: error.message });
   }
 });
