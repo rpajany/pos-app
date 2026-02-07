@@ -712,6 +712,9 @@ export const SalesBill = () => {
         nameTamil:
           items.find((i) => i._id === (item.itemId?._id || item.itemId))
             ?.nameTamil || "Unknown Item",
+            sellingPrice:
+            items.find((i) => i._id === (item.itemId?._id || item.itemId))
+            ?.sellingPrice || "0",
       }));
 
       // 2. Find customer info for the print job

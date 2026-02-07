@@ -352,9 +352,17 @@ export const Purchase = () => {
     const balanceAmt =
       Number(formData.totalAmount) - Number(formData.amountPaid);
 
+    let updateStatus;
+
+    if (formData.amountPaid >= formData.totalAmount) {
+      updateStatus = "completed";
+    } else {
+      updateStatus = "pending";
+    }
+
     setFormData((prev) => ({
       ...prev,
-
+      status: updateStatus,
       amountBalance: balanceAmt.toFixed(2),
     }));
   }, [formData.totalAmount, formData.amountPaid]);
@@ -794,7 +802,7 @@ export const Purchase = () => {
                 <th className="p-4 text-center text-xs font-bold text-slate-400 uppercase">
                   Status
                 </th>
-                 <th className="p-4 text-left text-xs font-bold text-slate-400 uppercase">
+                <th className="p-4 text-left text-xs font-bold text-slate-400 uppercase">
                   Action
                 </th>
               </tr>
@@ -841,27 +849,24 @@ export const Purchase = () => {
                     </button>
                   </td> */}
 
-                   {/* NEW PAYMENT BUTTON COLUMN */}
-                    <td className="p-4">
-                      {p.status !== "completed" ? (
-                        <button
+                  {/* NEW PAYMENT BUTTON COLUMN */}
+                  <td className="p-4">
+                    {p.status !== "completed" ? (
+                      <button
                         onClick={() => {
-                        setSelectedPurchase(p);
-                        setIsPaymentModalOpen(true);
-                      }}
-                          className="text-xs bg-blue-50 text-blue-600 px-3 py-1 rounded-full border border-blue-200 hover:bg-blue-600 hover:text-white transition"
-                        >
-                          Pay Now
-                        </button>
-                      ) : (
-                        <span className="text-xs text-gray-400 italic">
-                          No Balance
-                        </span>
-                      )}
-                    </td>
-
-
-
+                          setSelectedPurchase(p);
+                          setIsPaymentModalOpen(true);
+                        }}
+                        className="text-xs bg-blue-50 text-blue-600 px-3 py-1 rounded-full border border-blue-200 hover:bg-blue-600 hover:text-white transition"
+                      >
+                        Pay Now
+                      </button>
+                    ) : (
+                      <span className="text-xs text-gray-400 italic">
+                        No Balance
+                      </span>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>

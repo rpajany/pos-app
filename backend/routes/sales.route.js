@@ -52,7 +52,7 @@ router.get("/load", verifyToken, async (req, res) => {
       // .populate("customerId")
       .populate("customerId", "name phone gstNumber") // Populate specific fields
       // .populate("items.itemId")
-      
+
       .populate("items.itemId", "itemName")
       .sort({ createdAt: -1 });
 
@@ -61,8 +61,6 @@ router.get("/load", verifyToken, async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-
-
 
 // router.post("/insert", verifyToken, async (req, res) => {
 //   try {
@@ -97,8 +95,8 @@ router.get("/load", verifyToken, async (req, res) => {
 //       }]
 //     });
 
-//     await initialPayment.save(); 
-//     // Note: The pre-save middleware we wrote earlier will 
+//     await initialPayment.save();
+//     // Note: The pre-save middleware we wrote earlier will
 //     // automatically calculate balanceAmount and paymentStatus here.
 
 //     // 4. Update Stock for each item sold
@@ -169,62 +167,77 @@ router.get("/load", verifyToken, async (req, res) => {
 // });
 
 router.post("/insert", verifyToken, async (req, res) => {
-  // 1. Start the Session for Transaction
+  // 1. Start the Session for Transaction safety
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
-    const { items, ...saleData } = req.body;
+    // FIX: Look inside req.body.formData because that's what your frontend sends
+    const formData = req.body.formData || req.body;
+    const { items } = formData;
+
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      throw new Error("No items provided in the sale.");
+    }
+
+    // 2. Generate unique Invoice Number (Auto-increment logic)
+    const invoiceNo = await generateInvoiceNumber();
+
     const processedItems = [];
 
-    // 2. Validate Items and Check Stock
+    // 3. Validate Items and Check Stock
     for (const item of items) {
       const itemDoc = await Item.findById(item.itemId).session(session);
-      if (!itemDoc) {
-        throw new Error(`Item ${item.itemId} not found`);
-      }
+      if (!itemDoc) throw new Error(`Item ${item.itemId} not found`);
 
-      // Optional: Check if enough stock exists before selling
+      // Check if enough stock exists before selling
       if (itemDoc.stock < item.quantity) {
-        throw new Error(`Insufficient stock for ${itemDoc.name}. Available: ${itemDoc.stock}`);
+        throw new Error(
+          `Insufficient stock for ${itemDoc.itemName}. Available: ${itemDoc.stock}`
+        );
       }
 
       processedItems.push({
         itemId: item.itemId,
-        name: item.name || itemDoc.name,
+        itemName: itemDoc.itemName, // Fixed: Using itemName from your Item model
         quantity: Number(item.quantity),
-        price: Number(item.price),
+        price: Number(item.sellingPrice || item.price),
         gstPercentage: item.gstPercentage,
         total: item.total,
+        hsnCode: itemDoc.hsnCode, // Capturing HSN from master for the sale record
       });
     }
 
-    // 3. Save Sale document
+    // 4. Save Sale document
     const newSale = new Sale({
-      ...saleData,
+      ...formData,
+      invoiceNo, // Overriding with generated number
+      status: formData.status || "completed",
       items: processedItems,
     });
     const savedSale = await newSale.save({ session });
 
-    // 4. Create Payment Tracking Record
+    // 5. Create Payment Tracking Record (Using your original field names)
     const initialPayment = new SalesPayment({
-      saleId: savedSale._id,
+      invoiceId: savedSale._id, // Restored: matching your schema
       invoiceNo: savedSale.invoiceNo,
       customerId: savedSale.customerId,
       customerName: savedSale.customerName,
-      totalAmount: savedSale.totalAmount,
-      payments: [{
-        amount_paid: saleData.amountPaid || 0,
-        pay_type: saleData.paymentMethod || "Cash",
-        payment_date: new Date(),
-        note: "Initial payment at time of sale"
-      }]
+      totalInvoiceAmount: savedSale.totalAmount, // Restored: matching your schema
+      payments: [
+        {
+          amount_paid: formData.totalReceived || 0,
+          pay_type: formData.cashReceived > 0 ? "Cash" : "UPI",
+          payment_date: new Date(),
+          note: "Initial payment during sale",
+        },
+      ],
     });
     await initialPayment.save({ session });
 
-    // 5. Update Stock AND Create Stock History (OUT)
-    const salesStockUpdates = processedItems.map(async (item) => {
-      // Get the current stock before modification
+    // 6. Update Stock AND Create Stock History (OUT)
+    const stockHistoryPromises = processedItems.map(async (item) => {
+      // Get current stock for history logging
       const currentItem = await Item.findById(item.itemId).session(session);
       const openingStock = currentItem.stock || 0;
       const closingStock = openingStock - item.quantity;
@@ -239,7 +252,7 @@ router.post("/insert", verifyToken, async (req, res) => {
       // Create Stock History Record
       const history = new StockHistory({
         itemId: item.itemId,
-        itemName: item.name,
+        itemName: item.itemName, // Fixed: itemName is now correctly populated
         type: "OUT",
         transactionType: "SALE",
         referenceId: savedSale._id,
@@ -247,26 +260,62 @@ router.post("/insert", verifyToken, async (req, res) => {
         quantity: item.quantity,
         openingStock: openingStock,
         closingStock: closingStock,
-        date: new Date()
+        date: new Date(),
       });
 
       return history.save({ session });
     });
 
-    await Promise.all(salesStockUpdates);
+    await Promise.all(stockHistoryPromises);
 
-    // 6. COMMIT the transaction
+    // 7. Update Customer Loyalty Points & Credit Balance (RESTORED logic)
+    if (formData.customerId) {
+      const customerUpdate = { $inc: {} };
+
+      // A. Update Loyalty Points
+      if (formData.pointsEarned > 0) {
+        customerUpdate.$inc.loyaltyPoints = formData.pointsEarned;
+      }
+
+      // B. Update Credit Balance (If payment method is credit or there's debt)
+      if (formData.paymentMethod === "credit") {
+        customerUpdate.$inc.currentCredit = formData.totalAmount;
+      } else if (formData.balanceChange < 0) {
+        // If they paid partially (e.g., total 100, paid 80), balanceChange is -20
+        customerUpdate.$inc.currentCredit = Math.abs(formData.balanceChange);
+      }
+
+      // Execute update only if there are changes
+      if (Object.keys(customerUpdate.$inc).length > 0) {
+        await Customer.findByIdAndUpdate(formData.customerId, customerUpdate, { session });
+      }
+    }
+
+    // 8. Add to Sync Queue
+    await addToSyncQueue("sales", "create", savedSale._id.toString(), {
+      ...savedSale.toObject(),
+    });
+
+    // 9. Finalize Transaction
     await session.commitTransaction();
     session.endSession();
 
-    res.status(201).json(savedSale);
+    res.status(201).json({
+      success: true,
+      message: "Sale completed successfully",
+      sale: savedSale,
+    });
+
   } catch (error) {
-    // 7. ROLLBACK on any failure
+    // ROLLBACK everything if ANY step fails
     await session.abortTransaction();
     session.endSession();
 
-    console.error("Sales Transaction Error:", error);
-    res.status(400).json({ message: error.message });
+    console.error("Sales Transaction Error:", error.message);
+    res.status(400).json({ 
+      success: false, 
+      message: error.message 
+    });
   }
 });
 

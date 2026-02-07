@@ -1,6 +1,9 @@
 import { format } from "date-fns";
 
 export const PrintA5Invoice = (data) => {
+  console.log("data :",data)
+  const language = import.meta.env.VITE_RECEIPT_LANGUAGE || "english";
+
   const salesDate = data.saleDate
     ? format(new Date(data.saleDate), "dd-MM-yyyy, hh:mm a")
     : "N/A";
@@ -96,7 +99,7 @@ export const PrintA5Invoice = (data) => {
               <tr>
                 <td style="text-align: center;">${index + 1}</td>
                     <td>
-                  <strong>${item.nameTamil}</strong><br>
+                  <strong>${language == "tamil" ? item.nameTamil : item.itemName}</strong><br>
                   <small>HSN: ${item.hsnCode || "N/A"}</small>
                 </td>
 
