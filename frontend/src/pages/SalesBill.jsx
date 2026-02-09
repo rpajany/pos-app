@@ -81,6 +81,10 @@ export const SalesBill = () => {
 
   // const token = localStorage.getItem("token");
 
+
+
+console.log("showForm :",showForm)
+
   //  Reset form to initial state
   const reset_formData = () => {
     setResetKey((prev) => prev + 1); // This wipes the component clean
@@ -1305,6 +1309,7 @@ export const SalesBill = () => {
           </div>
         )}
 
+      {!showForm && (
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           <div className="bg-white p-4 rounded-lg shadow-sm mb-6 flex flex-wrap items-end gap-4">
             <div>
@@ -1424,6 +1429,8 @@ export const SalesBill = () => {
             </table>
           )}
         </div>
+        )}
+        
       </div>
 
       {/* The Modal */}

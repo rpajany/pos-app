@@ -7,6 +7,7 @@ import { InputField } from "@/components/InputField";
 import { SupplierAutocomplete } from "../components/SupplierAutocomplete";
 import { SupplierFormModal } from "@/components/SupplierFormModal";
 import { useApp } from "@/context/useApp";
+import { format } from "date-fns";
 import {
   Trash2,
   PlusCircle,
@@ -29,7 +30,14 @@ export const Purchase = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPurchase, setSelectedPurchase] = useState([]);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+
+    // for report
+  const today = new Date().toISOString().split("T")[0];
+   const [fromDate, setFromDate] = useState(today);
+    const [toDate, setToDate] = useState(today);
+
   const barcodeRef = useRef(null);
+
 
   const MY_BUSINESS_STATE_CODE =
     Number(import.meta.env.VITE_BUSINESS_STATE_CODE) || 34;
@@ -83,24 +91,17 @@ export const Purchase = () => {
     );
   };
 
-  useEffect(() => {
-    fetchPurchases();
-    fetchItems();
-    fetchSuppliers();
-  }, []);
+
 
   useEffect(() => {
     if (showForm) focusBarcode();
   }, [showForm]);
 
-  // Recalculate Totals whenever items change
-  useEffect(() => {
-    calculateFinalTotals();
-  }, [formData.items]);
 
-  const fetchPurchases = async () => {
+
+  const fetchPurchases = async (from = fromDate, to = toDate) => {
     setLoading(true);
-    const response = await safeCall(api.get("/purchase/load"));
+    const response = await safeCall(api.get(`/purchase/load?from=${from}&to=${to}`));
     if (response.success) setPurchases(response.data);
     setLoading(false);
   };
@@ -109,6 +110,13 @@ export const Purchase = () => {
     const response = await safeCall(api.get("/item_master/load"));
     if (response.success) setItems(response.data);
   };
+
+
+    useEffect(() => {
+    fetchPurchases(fromDate, toDate);
+    fetchItems();
+    fetchSuppliers();
+  }, []);
 
   const handleItemSelect = (itemId) => {
     const selected = items.find((i) => i._id === itemId);
@@ -148,6 +156,13 @@ export const Purchase = () => {
       totalAmount: Math.round(totals.taxable + totalTax),
     }));
   };
+
+
+    // Recalculate Totals whenever items change
+  useEffect(() => {
+    calculateFinalTotals();
+  }, [formData.items]);
+
 
   // --- CORE LOGIC: SUPPLIER CHANGE TAX SWITCHING ---
   // --- 2. INSTANT SUPPLIER & TAX SWITCHING ---
@@ -370,6 +385,48 @@ export const Purchase = () => {
       amountBalance: balanceAmt.toFixed(2),
     }));
   }, [formData.totalAmount, formData.amountPaid]);
+
+
+  // download report
+    const downloadCSV = () => {
+      if (purchases.length === 0) return alert("No data to download");
+  
+      // Define Headers
+      const headers = [
+   
+        "Invoice No",
+        "Customer",
+             "Date",
+        "Total Items",
+        "Total Amount",
+        "Status",
+      ];
+  
+      // Map Data
+      const rows = purchases.map((purchase) => [
+      
+        `"${purchase.purchaseNo}"`, // Quoted to prevent scientific notation in Excel
+        purchase.supplierName || "Walk-in",
+          format(new Date(purchase.createdAt), "dd-MM-yyyy"),
+        purchase.items.length,
+        purchase.totalAmount,
+        purchase.status,
+      ]);
+  
+      // Combine to string
+      const csvContent = [headers, ...rows].map((e) => e.join(",")).join("\n");
+  
+      // Create Download Link
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `Purchase_Report_${fromDate}_to_${toDate}.csv`);
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    };
 
   return (
     <div className="min-h-screen bg-[#f8fafc] p-4 md:p-8">
@@ -783,11 +840,50 @@ export const Purchase = () => {
             </div>
           </form>
         </div>
-      )}
+      )
+       
+      }
 
       {/* List Table (Same as before but styled) */}
       {!showForm && (
         <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="bg-white p-4 rounded-lg shadow-sm mb-6 flex flex-wrap items-end gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                From Date
+              </label>
+              <input
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className="mt-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                To Date
+              </label>
+              <input
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                className="mt-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+            <button
+              onClick={() => fetchPurchases(fromDate, toDate)}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition font-medium"
+            >
+              View Report
+            </button>
+            <button
+              onClick={downloadCSV}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md transition font-medium"
+            >
+              Download CSV
+            </button>
+          </div>
+
           <table className="w-full">
             <thead className="bg-slate-50 border-b border-slate-100">
               <tr>

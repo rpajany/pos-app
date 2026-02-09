@@ -17,7 +17,23 @@ const calculateItemGST = (itemPrice, quantity, gstPercentage) => {
 
 router.get("/load", verifyToken, async (req, res) => {
   try {
-    const purchases = await Purchase.find().populate("items.itemId")
+    const { from, to } = req.query;
+    let query = {};
+
+     // If dates are provided, add them to the query object
+    if (from || to) {
+      query.createdAt = {};
+
+      if (from) query.createdAt.$gte = new Date(from);
+      if (to) {
+        // To include the entire "to" day, set it to the very end of that day
+        const endDate = new Date(to);
+        endDate.setHours(23, 59, 59, 999);
+        query.createdAt.$lte = endDate;
+      }
+    }
+
+    const purchases = await Purchase.find(query).populate("items.itemId")
     res.json(purchases)
   } catch (error) {
     res.status(500).json({ message: error.message })
