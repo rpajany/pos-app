@@ -72,28 +72,7 @@ export const Purchase = () => {
     }, 10);
   };
 
-  const resetForm = () => {
-    setFormData({
-      purchaseNo: "",
-      supplierId: "",
-      supplierName: "",
-      supplierStateCode: "",
-      purchaseDate: new Date().toISOString().split("T")[0],
-      dueDate: "",
-      items: [],
-      totalTaxableValue: 0,
-      totalCGST: 0,
-      totalSGST: 0,
-      totalIGST: 0,
-      totalTax: 0,
-      totalDiscount: 0,
-      totalAmount: 0,
-      status: "pending",
-      notes: "",
-    });
-    setEditingId(null);
-    focusBarcode();
-  };
+ 
 
   const isFormValid = () => {
     return (
@@ -312,6 +291,31 @@ export const Purchase = () => {
     }
   };
 
+
+   const resetForm = () => {
+    setFormData({
+      purchaseNo: "",
+      supplierId: "",
+      supplierName: "",
+      supplierStateCode: "",
+      purchaseDate: new Date().toISOString().split("T")[0],
+      dueDate: "",
+      items: [],
+      totalTaxableValue: 0,
+      totalCGST: 0,
+      totalSGST: 0,
+      totalIGST: 0,
+      totalTax: 0,
+      totalDiscount: 0,
+      totalAmount: 0,
+      status: "pending",
+      notes: "",
+    });
+     fetchItems();
+    setEditingId(null);
+    focusBarcode();
+  };
+  
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
     if (!isFormValid() || loading) return;

@@ -22,7 +22,8 @@ export const CustomerFormModal = ({ isOpen, onClose, onSuccess, initialData = nu
     customerType: "B2C",
     state_code: 0,
     is_sez: false,
-    creditLimit: "",
+    loyaltyPoints:0,
+    creditLimit: 0,
   });
 
   useEffect(() => {
@@ -172,7 +173,8 @@ export const CustomerFormModal = ({ isOpen, onClose, onSuccess, initialData = nu
               <p>Zero-Rated Supply: When you sell to a customer in an SEZ, you don't usually charge GST (it's "Zero-Rated"), even if they are in the same state as you.</p>
             </div>
 
-          <InputField type="number" label="Credit Limit" name="creditLimit" value={formData.creditLimit} onChange={handleInputChange} />
+          <InputField type="number" label="Loyalty Points" min="0"  step="1" name="loyaltyPoints" value={formData.loyaltyPoints || 0} onChange={handleInputChange} />
+          <InputField type="number" label="Credit Limit" name="creditLimit" value={formData.creditLimit || 0} onChange={handleInputChange} />
 
 
           <div className="col-span-full flex justify-end gap-3 mt-4">
