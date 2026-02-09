@@ -17,8 +17,6 @@ router.get("/load", verifyToken, async (req, res) => {
   }
 });
 
-
-
 // router.post("/insert", verifyToken, async (req, res) => {
 //   // Start a Session for the transaction
 //   const session = await mongoose.startSession();
@@ -50,7 +48,7 @@ router.get("/load", verifyToken, async (req, res) => {
 //     // If ANY step fails, UNDO everything done in this session
 //     await session.abortTransaction();
 //     session.endSession();
-    
+
 //     res.status(400).json({ message: error.message });
 //   }
 // });
@@ -65,13 +63,14 @@ router.post("/insert", verifyToken, async (req, res) => {
     const newItem = new Item(req.body);
     const savedItem = await newItem.save({ session });
 
+
     // 2. Log to Stock History (Initial Stock)
     // We treat the starting stock as an "ADJUSTMENT" or "INITIAL" type
     const initialStock = Number(req.body.stock) || 0;
-    
+
     const stockHistory = new StockHistory({
       itemId: savedItem._id,
-      itemName: savedItem.name,
+      itemName: savedItem.itemName,
       type: "IN", // Stock is coming into the system
       transactionType: "ADJUSTMENT", // Or "INITIAL" depending on your enum
       referenceId: savedItem._id, // Reference itself since it's the opening entry
@@ -79,7 +78,7 @@ router.post("/insert", verifyToken, async (req, res) => {
       quantity: initialStock,
       openingStock: 0, // It was a new item, so it started at 0
       closingStock: initialStock,
-      date: new Date()
+      date: new Date(),
     });
 
     await stockHistory.save({ session });
@@ -96,7 +95,7 @@ router.post("/insert", verifyToken, async (req, res) => {
     // If ANY step fails, UNDO everything done in this session
     await session.abortTransaction();
     session.endSession();
-    
+
     console.error("Item Insert Error:", error);
     res.status(400).json({ message: error.message });
   }
@@ -122,10 +121,11 @@ router.put("/:id", verifyToken, async (req, res) => {
     const updatedItem = await Item.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
-    if (!updatedItem) return res.status(404).json({ message: "Item not found" });
+    if (!updatedItem)
+      return res.status(404).json({ message: "Item not found" });
 
     // 3. Calculate the difference ONLY if stock was part of the update
-    // If stock wasn't changed, we don't necessarily need a ledger entry, 
+    // If stock wasn't changed, we don't necessarily need a ledger entry,
     // but if it was, we need the delta.
     const oldStock = oldItem.stock || 0;
     const newStock = updatedItem.stock || 0;
@@ -135,8 +135,8 @@ router.put("/:id", verifyToken, async (req, res) => {
       const ledgerEntry = new StockLedger({
         itemId: updatedItem._id,
         changeQuantity: stockChange, // This will be +5 or -5
-        finalStock: newStock,        // This will be 55
-        reason: req.body.reason || "Manual Update" // Good to allow a reason from frontend
+        finalStock: newStock, // This will be 55
+        reason: req.body.reason || "Manual Update", // Good to allow a reason from frontend
       });
       await ledgerEntry.save();
     }
