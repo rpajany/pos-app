@@ -500,15 +500,16 @@ export const ItemMaster = () => {
         {/* 1. HEADER */}
         <div className="flex gap-2 items-center">
           <h2 className="font-bold">Item Master</h2>
-          <button
+   
+        </div>
+
+        <div className="flex gap-2">
+                 <button
             className="bg-gray-100 hover:bg-gray-300 text-black px-3 py-1 text-sm rounded-md cursor-pointer transition"
             onClick={() => (showForm ? resetForm() : setShowForm(true))}
           >
             {showForm ? "Cancel" : "+ New Item"}
           </button>
-        </div>
-
-        <div className="flex gap-2">
 
           {/* Download Template Button */}
     <button
