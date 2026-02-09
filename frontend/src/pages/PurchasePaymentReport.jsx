@@ -175,13 +175,13 @@ export const PurchasePaymentReport = () => {
                         </td>
                         <td className="p-4">
                           <span
-                            className={`text-[10px] font-bold px-2 py-1 rounded-full bg-gray-100 text-gray-600 border`}
+                            className={`text-[10px] font-bold px-2 py-1 rounded-full bg-blue-200 text-blue-500 border`}
                           >
                             {t.type}
                           </span>
                         </td>
                         <td className="p-4 text-sm font-bold text-right text-red-600">
-                          ₹{(t.amount || 0).toFixed(2)}
+                          ₹ {(t.amount || 0).toFixed(2)}
                         </td>
                       </tr>
                     ))

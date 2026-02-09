@@ -169,8 +169,8 @@ fetchReport();
                             {t.type}
                           </span>
                         </td>
-                        <td className="p-4 text-sm font-bold text-right text-gray-900">
-                          ₹{(t.amount || 0).toFixed(2)}
+                        <td className="p-4 text-sm font-bold text-right text-green-700">
+                          ₹ {(t.amount || 0).toFixed(2)}
                         </td>
                       </tr>
                     ))
