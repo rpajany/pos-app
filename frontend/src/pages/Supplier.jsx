@@ -161,6 +161,8 @@ export const SupplierPage = () => {
                 <tr>
                   <th className="p-4 border-b">Supplier Details</th>
                   <th className="p-4 border-b">Contact Person</th>
+                  <th className="p-4 border-b">State</th>
+          
                   <th className="p-4 border-b">GSTIN</th>
                   <th className="p-4 border-b text-right">Actions</th>
                 </tr>
@@ -176,6 +178,7 @@ export const SupplierPage = () => {
                       <div className="text-sm font-semibold text-gray-700">{s.contactPerson}</div>
                       <div className="text-xs text-gray-500">{s.phone}</div>
                     </td>
+                    <td>{s.state}</td>
                     <td className="p-4">
                       <span className="bg-gray-100 px-2 py-1 rounded text-xs font-mono">
                         {s.gstNumber || "---"}

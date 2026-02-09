@@ -11,6 +11,7 @@ import {
   Printer,
   BarcodeIcon,
   History,
+  Upload
 } from "lucide-react";
 
 export const ItemMaster = () => {
@@ -202,6 +203,33 @@ export const ItemMaster = () => {
     a.click();
   };
 
+
+  const downloadSampleCSV = () => {
+  // Define the headers based on your handleBulkUpload index mapping
+  const headers = "itemCode,itemName,category,barcode,purchasePrice,sellingPrice,stock";
+  
+  // Define a few sample rows to guide the user
+  const sampleData = [
+    "ITEM001,Sample Product A,Grocery,12345678,100,120,50",
+    "ITEM002,Sample Product B,Electronics,87654321,500,750,10"
+  ].join("\n");
+
+  const csvContent = `${headers}\n${sampleData}`;
+  
+  // Create a Blob and trigger download
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  
+  link.setAttribute("href", url);
+  link.setAttribute("download", "item_bulk_upload_template.csv");
+  link.style.visibility = "hidden";
+  
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
   // handel upload function..
   const handleBulkUpload = async (e) => {
     const file = e.target.files[0];
@@ -219,11 +247,13 @@ export const ItemMaster = () => {
           return {
             itemCode: columns[0]?.replace(/"/g, ""),
             itemName: columns[1]?.replace(/"/g, ""),
+            nameTamil: columns[1]?.replace(/"/g, ""), // Using English name as fallback for Tamil
             category: columns[2]?.replace(/"/g, ""),
             barcode: columns[3]?.replace(/"/g, ""),
             purchasePrice: parseFloat(columns[4]) || 0,
             sellingPrice: parseFloat(columns[5]) || 0,
             stock: parseInt(columns[6]) || 0,
+            hsnCode: "0000", // Default HSN to pass Mongoose validation
             unit: "piece",
             isActive: true,
           };
@@ -479,12 +509,23 @@ export const ItemMaster = () => {
         </div>
 
         <div className="flex gap-2">
+
+          {/* Download Template Button */}
+    <button
+      onClick={downloadSampleCSV}
+      className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
+    >
+      <Download size={16} />
+      Download CSV Template
+    </button>
+
           {/* Hidden Input */}
           <input
             type="file"
+            accept=".csv"
             id="bulk-upload"
             hidden
-            accept=".csv"
+     disabled={uploading}
             onChange={handleBulkUpload}
           />
 
@@ -493,14 +534,25 @@ export const ItemMaster = () => {
             htmlFor="bulk-upload"
             className="flex items-center gap-1 bg-indigo-600 text-white px-3 py-1 rounded-md text-sm cursor-pointer hover:bg-indigo-700 transition"
           >
-            {uploading ? "Uploading..." : "Bulk Upload (CSV)"}
+            {/* {uploading ? "Uploading..." : "Bulk Upload (CSV)"} */}
+        {uploading ? (
+    <>
+      <span className="animate-spin">🌀</span> 
+      Uploading...
+    </>
+  ) : (
+    <>
+      <Upload size={16} />
+      Bulk Upload (CSV)
+    </>
+  )}
           </label>
 
           <button
             onClick={downloadCSV}
             className="flex items-center gap-1 bg-green-600 text-white px-3 py-1 rounded-md text-sm hover:bg-green-700 transition"
           >
-            <Download size={16} /> Export CSV
+            <Download size={16} /> Export Report CSV
           </button>
         </div>
       </div>
