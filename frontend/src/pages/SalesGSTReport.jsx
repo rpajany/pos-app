@@ -584,8 +584,8 @@ export const SalesGSTReport = () => {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
+          <div className="w-full overflow-x-auto">
+            <table className="w-full text-left min-w-[1000px]">
               <thead>
                 <tr className="bg-gray-100 text-gray-600 text-xs font-bold uppercase tracking-wider">
                   <th className="p-4">Details</th>

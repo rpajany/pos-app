@@ -131,8 +131,8 @@ fetchReport();
             </div>
 
             {/* Detailed Table */}
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-              <table className="w-full text-left border-collapse">
+            <div className="w-full bg-white rounded-xl shadow-sm overflow-x-auto">
+              <table className="w-full text-left border-collapse min-w-[1000px">
                 <thead className="bg-gray-800 text-white">
                   <tr>
                     <th className="p-4 text-xs uppercase font-bold">Date</th>

@@ -140,8 +140,8 @@ export const PurchasePaymentReport = () => {
             </div>
 
             {/* Detailed Table */}
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden border">
-              <table className="w-full text-left border-collapse">
+            <div className="w-full bg-white rounded-xl shadow-sm overflow-x-auto border">
+              <table className="w-full text-left border-collapse min-w-[1000px]">
                 <thead className="bg-gray-100 text-gray-700 border-b">
                   <tr>
                     <th className="p-4 text-xs uppercase font-bold">Date</th>

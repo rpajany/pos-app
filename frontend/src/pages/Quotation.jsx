@@ -531,8 +531,8 @@ export const Quotation = () => {
               </div>
 
               {/* Items Table */}
-              <div className="mt-8 border rounded-xl overflow-hidden shadow-sm">
-                <table className="w-full text-left border-collapse">
+              <div className="w-full overflow-x-auto mt-8 border rounded-xl overflow-hidden shadow-sm">
+                <table className="w-full text-left border-collapse min-w-[1000px]">
                   <thead className="bg-gray-100 text-gray-600 uppercase text-[11px] font-black tracking-widest">
                     <tr>
                       <th className="p-4 border-b">Description</th>
