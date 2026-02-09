@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { api, safeCall } from "@/services/ApiService";
 import { Download, Search, Calendar, IndianRupee } from "lucide-react";
 import { format } from "date-fns";
@@ -22,6 +22,10 @@ export const SalesPaymentReport = () => {
     if (res.success) setReportData(res.data.data );
     setLoading(false);
   };
+
+  useEffect(()=>{
+fetchReport();
+  },[])
 
   console.log("report : ", reportData)
 

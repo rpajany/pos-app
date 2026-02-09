@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { api, safeCall } from "@/services/ApiService";
 import { Download, Search, IndianRupee, Truck } from "lucide-react";
 import { format } from "date-fns";
@@ -23,6 +23,11 @@ export const PurchasePaymentReport = () => {
     if (res.success) setReportData(res.data.data);
     setLoading(false);
   };
+
+
+    useEffect(()=>{
+  fetchReport();
+    },[])
 
   const exportToCSV = () => {
     if (!reportData?.allTransactions?.length) return;
