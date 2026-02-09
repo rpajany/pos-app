@@ -495,8 +495,8 @@ export const ItemMaster = () => {
   }, [searchTerm, selectedCategory, items]);
 
   return (
-    <div className="item-master border   rounded-md">
-      <div className="flex justify-between px-2 py-2 header bg-amber-300 gap-2 rounded-t-md">
+    <div className="w-full item-master border   rounded-md">
+      <div className="md:flex sm:flex-row justify-between px-2 py-2 header bg-amber-300 gap-2 rounded-t-md">
         {/* 1. HEADER */}
         <div className="flex gap-2 items-center">
           <h2 className="font-bold">Item Master</h2>
@@ -512,13 +512,13 @@ export const ItemMaster = () => {
           </button>
 
           {/* Download Template Button */}
-    <button
-      onClick={downloadSampleCSV}
-      className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
-    >
-      <Download size={16} />
-      Download CSV Template
-    </button>
+            <button
+              onClick={downloadSampleCSV}
+              className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
+            >
+              <Download size={16} />
+              Download CSV Template
+            </button>
 
           {/* Hidden Input */}
           <input
@@ -558,11 +558,11 @@ export const ItemMaster = () => {
         </div>
       </div>
 
-      <div className="flex  grid-cols-1 md:grid-cols-3 bg-gray-400 gap-4 pl-2 py-2">
+      <div className="  md:flex  sm:grid-cols-1 md:grid-cols-3 bg-gray-400 md:gap-4 sm:gap-6 p-2 py-2">
         {/* 2. INSERT STOCK SUMMARY HERE */}
 
         {/* Total Items Card */}
-        <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-500 flex justify-between items-center">
+        <div className=" bg-white p-4  mb-2 rounded-lg shadow-sm border-l-4 border-blue-500 flex justify-between items-center">
           <div>
             <p className="text-gray-500 text-xs uppercase font-semibold">
               Total Items
@@ -575,7 +575,7 @@ export const ItemMaster = () => {
         </div>
 
         {/* Low Stock Card */}
-        <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-red-500 flex justify-between items-center">
+        <div className="bg-white p-4 mb-2 rounded-lg shadow-sm border-l-4 border-red-500 flex justify-between items-center">
           <div>
             <p className="text-gray-500 text-xs uppercase font-semibold">
               Low Stock Alert
@@ -826,24 +826,30 @@ export const ItemMaster = () => {
               </div>
             </div>
 
-            <div className="mt-2">
+            <div className="flex mt-2 gap-4">
               <button
                 type="submit"
-                className="btn-success px-3 py-1 rounded-md cursor-pointer"
+                className="w-full btn-success px-3 py-1 rounded-md cursor-pointer"
               >
                 {editingId ? "Update Item" : "Add Item"}
               </button>
+
+              <button type="button" onClick={() => (showForm ? resetForm() :null)}
+              className="bg-red-400 px-2 py-1 text-white rounded-sm hover:bg-red-500"
+                >Close</button>
             </div>
           </form>
         </div>
       )}
 
+  
+{!showForm && (
+  <>
       <hr className=" border-blue-400"></hr>
-
       {/* 3. Improved Search Bar UI */}
-      <div className=" flex  w-full search-container mt-4 px-3 ">
-        <div className="w-1/2">
-          <div className="flex items-stretch shadow-sm max-w-2xl">
+      <div className=" md:flex xs:flex-col  w-full search-container mt-4 px-3 ">
+        <div className="w-1/2 sm:w-full">
+          <div className="flex   items-stretch shadow-sm max-w-2xl">
             {/* The Glass Icon as a decorative prefix */}
             <div className="flex items-center justify-center bg-gray-100 border border-r-0 border-gray-300 px-3 rounded-l-lg text-gray-500">
               <Search size={20} />
@@ -851,7 +857,7 @@ export const ItemMaster = () => {
             <input
               type="text"
               placeholder="Search by Code, Name, Barcode or Category..."
-              className="flex-1 px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-amber-400 focus:border-amber-400 outline-none transition-all"
+              className="flex-1   px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-amber-400 focus:border-amber-400 outline-none transition-all"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -871,10 +877,10 @@ export const ItemMaster = () => {
           </div>
         </div>
 
-        <div className="w-1/2">
+        <div className="md:w-1/2 xs:w-full">
           {/* Add this inside your search-bar div */}
           <select
-            className=" w-1/2 border border-gray-300 rounded-lg px-3 py-2 bg-white outline-none focus:ring-2 focus:ring-amber-300"
+            className="   border border-gray-300 rounded-lg px-3 py-2 bg-white outline-none focus:ring-2 focus:ring-amber-300"
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
           >
@@ -889,33 +895,36 @@ export const ItemMaster = () => {
         </div>
       </div>
 
+
+
+
       <div className="items-table px-3 bg-white rounded-lg shadow-md overflow-x-auto mb-2 mt-4">
         {loading ? (
           <p className="p-4 text-center">Loading items...</p>
         ) : (
           <table className="w-full border-collapse">
-            <thead className="bg-gray-100 border-b">
+            <thead className="bg-gray-400 border-b">
               <tr>
                 {/* Headers remain same */}
-                <th className="px-4 py-3 text-left font-semibold text-gray-800">
+                <th className="px-4 py-3 text-left font-semibold text-gray-200">
                   Item Code
                 </th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-800">
+                <th className="px-4 py-3 text-left font-semibold text-gray-200">
                   Item Name
                 </th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-800">
+                <th className="px-4 py-3 text-left font-semibold text-gray-200">
                   Category
                 </th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-800">
+                <th className="px-4 py-3 text-left font-semibold text-gray-200">
                   Barcode
                 </th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-800">
+                <th className="px-4 py-3 text-left font-semibold text-gray-200">
                   Price
                 </th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-800">
+                <th className="px-4 py-3 text-left font-semibold text-gray-200">
                   Stock
                 </th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-800">
+                <th className="px-4 py-3 text-left font-semibold text-gray-200">
                   Actions
                 </th>
               </tr>
@@ -992,6 +1001,8 @@ export const ItemMaster = () => {
           </table>
         )}
       </div>
+      </>
+      )}
 
       {showHistoryModal && (
   <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
