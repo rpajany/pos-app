@@ -333,8 +333,8 @@ const generateMonthlyReport = () => {
           </div>
 
           {/* Expense Table */}
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-            <table className="w-full text-left">
+          <div className="w-full overflow-x-auto bg-white rounded-xl shadow-sm overflow-hidden">
+            <table className="w-full text-left min-w-[1000px]">
               <thead className="bg-gray-400 text-gray-100 text-sm">
                 <tr>
                   <th className="p-4">Date</th>
