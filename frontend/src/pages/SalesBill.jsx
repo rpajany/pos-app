@@ -1350,7 +1350,8 @@ console.log("showForm :",showForm)
           {loading ? (
             <div className="p-8 text-center">Loading...</div>
           ) : (
-            <table className="w-full text-sm">
+               <div className="w-full overflow-x-auto">
+            <table className="w-full text-sm min-w-[1000px]">
               <thead className="bg-gray-100 border-b-2 border-gray-300">
                 <tr>
                   <th className="px-6 py-3 text-left font-semibold">Invoice</th>
@@ -1427,6 +1428,7 @@ console.log("showForm :",showForm)
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
         )}

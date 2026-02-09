@@ -884,8 +884,9 @@ export const Purchase = () => {
             </button>
           </div>
 
-          <table className="w-full">
-            <thead className="bg-slate-50 border-b border-slate-100">
+<div className="w-full overflow-x-auto px-2">
+          <table className="w-full min-w-[1000px]">
+            <thead className="bg-slate-600 border-b border-slate-100">
               <tr>
                 <th className="p-4 text-left text-xs font-bold text-slate-400 uppercase">
                   Purchase No
@@ -971,6 +972,7 @@ export const Purchase = () => {
               ))}
             </tbody>
           </table>
+          </div>
           {purchases.length === 0 && !loading && (
             <div className="p-20 text-center text-slate-400">
               <ReceiptText size={48} className="mx-auto mb-4 opacity-20" />
