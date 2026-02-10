@@ -8,10 +8,7 @@ import { Plus, Save, Trash2, Download, List } from "lucide-react";
 import { QuotationDataTable } from "@/components/QuotationDataTable";
 import { QuotationStatusModal } from "@/components/QuotationStatusModal";
 
-
 export const Quotation = () => {
-
-
   const [isEditable, setIsEditable] = useState(false); // Controls Read-Only state
 
   const [formData, setFormData] = useState({
@@ -290,12 +287,12 @@ export const Quotation = () => {
   };
 
   return (
-    <div className="p-6 bg-white min-h-screen border-t-4 border-green-600 max-w-6xl mx-auto shadow-lg">
+    <div className="p-2 bg-white min-h-screen border-t-4 border-green-600 max-w-6xl mx-auto shadow-lg">
       {/* <h1 className="text-center text-2xl font-bold text-gray-700 mb-8">
         Quotation
       </h1> */}
 
-      <div className="p-6 bg-gray-50 min-h-screen">
+      <div className="p-2 bg-gray-50 min-h-screen">
         {/* TOP HEADER SECTION */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
           <h2 className="text-2xl font-bold text-gray-800">
@@ -313,33 +310,39 @@ export const Quotation = () => {
 
         {/* DATE PICKERS & ACTIONS */}
         {view === "list" && (
-          <div className="bg-white p-4 rounded-xl border shadow-sm mb-6 flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <input
-                type="date"
-                className="border p-2 rounded text-sm"
-                value={dateFilter.start}
-                onChange={(e) =>
-                  setDateFilter({ ...dateFilter, start: e.target.value })
-                }
-              />
-              <span className="text-gray-400">to</span>
-              <input
-                type="date"
-                className="border p-2 rounded text-sm"
-                value={dateFilter.end}
-                onChange={(e) =>
-                  setDateFilter({ ...dateFilter, end: e.target.value })
-                }
-              />
-              <button
-                onClick={handleShowReport}
-                className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-bold hover:bg-blue-700"
-              >
-                Show Report
-              </button>
+          <div className="flex  bg-white p-4 rounded-xl border shadow-sm mb-6  flex-wrap items-center justify-between gap-4">
+            <div className="grid md:grid-cols-2 sm:grid-cols-1 items-center gap-2 sm:gap-4">
+                 <div className="flex gap-2">
+              <div>
+                <input
+                  type="date"
+                  className="border p-2 rounded text-sm"
+                  value={dateFilter.start}
+                  onChange={(e) =>
+                    setDateFilter({ ...dateFilter, start: e.target.value })
+                  }
+                />
+                <span className="text-gray-400">to</span>
+                <input
+                  type="date"
+                  className="border p-2 rounded text-sm"
+                  value={dateFilter.end}
+                  onChange={(e) =>
+                    setDateFilter({ ...dateFilter, end: e.target.value })
+                  }
+                />
+              </div>
 
-              <div className="flex items-center gap-2 ml-4">
+           
+                <button
+                  onClick={handleShowReport}
+                  className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-bold hover:bg-blue-700"
+                >
+                  Show Report
+                </button>
+              </div>
+
+              <div className="flex sm:flex-row items-center gap-2 ml-4">
                 <label className="text-xs font-black uppercase text-gray-400">
                   Status:
                 </label>
@@ -359,7 +362,7 @@ export const Quotation = () => {
 
             <button
               onClick={() => downloadCSV(filteredQuotes)}
-              className="flex items-center gap-2 text-sm font-bold text-gray-600 hover:text-green-600 transition"
+              className="flex   items-center  gap-2 text-sm font-bold text-gray-600 hover:text-green-600 transition"
             >
               <Download size={18} /> Export Filtered CSV
             </button>
@@ -455,7 +458,6 @@ export const Quotation = () => {
                     className="border-2 p-2 rounded-xl outline-none focus:border-blue-500 font-bold text-gray-700"
                   />
                 </div>
-
               </div>
             </div>
 
@@ -531,8 +533,8 @@ export const Quotation = () => {
               </div>
 
               {/* Items Table */}
-              <div className="w-full overflow-x-auto mt-8 border rounded-xl overflow-hidden shadow-sm">
-                <table className="w-full text-left border-collapse min-w-[1000px]">
+              <div className="w-full mt-8 border rounded-xl shadow-sm">
+                <table className="w-full text-left border-collapse ">
                   <thead className="bg-gray-100 text-gray-600 uppercase text-[11px] font-black tracking-widest">
                     <tr>
                       <th className="p-4 border-b">Description</th>
@@ -616,7 +618,7 @@ export const Quotation = () => {
                       <span>%):</span>
                     </div>
                     <span>
-                      ₹ 
+                      ₹
                       {taxAmount.toLocaleString("en-IN", {
                         minimumFractionDigits: 2,
                       })}
@@ -628,7 +630,7 @@ export const Quotation = () => {
                       Total Amount:
                     </span>
                     <span className="text-2xl font-black text-green-600">
-                      ₹ 
+                      ₹
                       {grandTotal.toLocaleString("en-IN", {
                         minimumFractionDigits: 2,
                       })}

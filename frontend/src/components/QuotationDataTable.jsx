@@ -17,10 +17,10 @@ console.log(company)
   };
 
   return (
-    <div className="bg-white rounded-xl shadow border overflow-hidden">
+    <div className="w-full overflow-x-auto bg-white rounded-xl shadow border overflow-hidden">
       <table className="w-full text-left border-collapse">
-        <thead className="bg-gray-50 border-b">
-          <tr className="text-[11px] font-black uppercase text-gray-500 tracking-wider">
+        <thead className="bg-gray-500 border-b">
+          <tr className="text-[11px] font-black uppercase text-gray-200 tracking-wider">
             <th className="p-4">Quote No</th>
             <th className="p-4">Date</th>
             <th className="p-4">Customer</th>
