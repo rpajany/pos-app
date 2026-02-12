@@ -369,10 +369,11 @@ export const updatePayment = async (req, res) => {
         const amt = Number(curr.amount_paid);
         if (curr.pay_type === "Cash") acc.cash += amt;
         if (curr.pay_type === "UPI") acc.upi += amt;
+  
         acc.total += amt;
         return acc;
       },
-      { cash: 0, upi: 0, total: 0 }
+      { cash: 0, upi: 0,   total: 0 }
     );
 
     const isFullyPaid = record.totalInvoiceAmount - totals.total <= 0;

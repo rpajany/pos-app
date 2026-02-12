@@ -43,3 +43,11 @@ Settings: Change the Runtime from Node to Docker.
 Environment Variables: Ensure your MONGO_URI and JWT_SECRET are set in the Render "Environment" tab.
 
 Deploy: Render will automatically detect the Dockerfile, build it, and launch it.
+
+------------------------------------------------------------------------------
+Why it didn't update automatically
+Think of Docker like Git:
+
+docker-compose build : is like a Commit (it saves changes locally).
+
+docker-compose push  : is like a Push (it sends changes to the cloud/server).

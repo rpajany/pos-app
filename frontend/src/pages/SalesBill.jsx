@@ -1047,7 +1047,9 @@ console.log("showForm :",showForm)
                     value={currentItem.discountPercentage}
                     onChange={handleCurrentItemChange}
                     size="w-30"
-                    // className="  px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-purple-600"
+                    disabled
+                      // className="hidden"
+                    // className="  disabled px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-purple-600"
                   />
 
                   <InputField
@@ -1058,6 +1060,8 @@ console.log("showForm :",showForm)
                     value={currentItem.discountAmount.toFixed(2)}
                     onChange={handleCurrentItemChange}
                     size="w-40"
+                          disabled
+                            //  className="hidden"
                     // className="  px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-purple-600"
                   />
 

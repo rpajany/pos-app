@@ -1,6 +1,7 @@
 import express from "express";
 import Item from "../models/Item.js";
 import Sale from "../models/Sale.js"; // Assuming your models
+import salesPayment from "../models/SalesPayment.js";
 import Purchase from "../models/Purchase.js";
 import Expense from "../models/Expense.js";
 import { verifyToken } from "../middleware/auth.middleware.js";
@@ -142,21 +143,57 @@ router.get("/stats", verifyToken, async (req, res) => {
       ]),
 
       // 10. Payment Method Breakdown (Case-insensitive fix)
-      Sale.aggregate([
+      // Sale.aggregate([
+      //   {
+      //     $match: {
+      //       saleDate: { $gte: start, $lte: end },
+      //       status: "completed",
+      //     },
+      //   },
+      //   {
+      //     $group: {
+      //       _id: { $toLower: "$paymentMethod" }, // Forces 'Cash' and 'cash' into the same group
+      //       count: { $sum: 1 },
+      //       amount: { $sum: "$totalAmount" },
+      //     },
+      //   },
+      // ]),
+
+
+
+
+      // 10. Payment Method Breakdown (Fixed to use SalesPayment with Array Unwinding)
+      salesPayment.aggregate([
         {
+          // Step 1: Flatten the payments array so each payment record is a separate document
+          $unwind: "$payments"
+        },
+        {
+          // Step 2: Filter by date (using the payment_date inside the array) and status
           $match: {
-            saleDate: { $gte: start, $lte: end },
-            status: "completed",
+            "payments.payment_date": { $gte: start, $lte: end },
+            "payments.status": "Success",
           },
         },
         {
+          // Step 3: Group by the payment type (Cash, UPI, etc.)
           $group: {
-            _id: { $toLower: "$paymentMethod" }, // Forces 'Cash' and 'cash' into the same group
+            _id: { $toLower: "$payments.pay_type" }, 
             count: { $sum: 1 },
-            amount: { $sum: "$totalAmount" },
+            amount: { $sum: "$payments.amount_paid" },
           },
         },
+        {
+          // Step 4: Optional - Format the ID to look nice (capitalize first letter)
+          $project: {
+            method: "$_id",
+            count: 1,
+            amount: 1,
+            _id: 0
+          }
+        }
       ]),
+
 
       // 11. Recent Transactions (Query 11)
       Sale.find({ status: "completed" })

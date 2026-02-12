@@ -1,5 +1,3 @@
-
-
 // components/ItemAutocomplete.jsx
 // "use client"
 
@@ -73,7 +71,7 @@
 //       />
 
 //       {showDropdown && filteredItems.length > 0 && (
-//         <div 
+//         <div
 //           ref={dropdownRef}
 //           className="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded mt-1 shadow-2xl z-50 max-h-80 overflow-y-auto"
 //         >
@@ -143,7 +141,10 @@ const ItemAutocomplete = ({ items, selectedItemId, onSelect, barcodeRef }) => {
   // Handle clicking outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (containerRef.current && !containerRef.current.contains(event.target)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target)
+      ) {
         setShowDropdown(false);
       }
     };
@@ -204,58 +205,126 @@ const ItemAutocomplete = ({ items, selectedItemId, onSelect, barcodeRef }) => {
           onFocus={() => searchTerm && setShowDropdown(true)}
           className="w-full px-4 py-2 border-2 border-slate-200 rounded-lg focus:outline-none focus:border-blue-600 font-medium transition-colors"
         />
-        
+
         {/* Indicator for scan mode */}
         <div className="absolute right-3 top-2.5 text-slate-300">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect width="10" height="8" x="7" y="8" rx="1"/></svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+            <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+            <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+            <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+            <rect width="10" height="8" x="7" y="8" rx="1" />
+          </svg>
         </div>
       </div>
 
       {showDropdown && filteredItems.length > 0 && (
         <div
           ref={dropdownRef}
-          className="absolute top-full left-0 right-0 bg-white border border-slate-200 rounded-xl mt-2 shadow-2xl z-[100] max-h-80 overflow-y-auto overflow-x-hidden"
+          className="absolute top-full left-0 right-0 bg-white border border-slate-200 rounded-xl mt-2 shadow-2xl z-[100] max-h-80   overflow-y-auto overflow-x-hidden"
         >
           <div className="p-2 bg-slate-50 text-[10px] font-bold text-slate-400 uppercase border-b border-slate-100">
             Results ({filteredItems.length})
           </div>
           {filteredItems.map((item, index) => (
+        
             <div
               key={item._id}
               onClick={() => handleSelect(item._id)}
-              className={`px-4 py-3 cursor-pointer border-b border-slate-50 last:border-b-0 flex justify-between items-center transition-all ${
+              className={`px-4 py-3 cursor-pointer border-b border-slate-50 last:border-b-0 flex-row justify-between items-center transition-all ${
                 highlightedIndex === index
                   ? "bg-blue-600 text-white translate-x-1"
                   : "hover:bg-blue-50"
               }`}
             >
               <div className="flex-1 min-w-0">
-                <div className={`font-bold truncate ${
-                  highlightedIndex === index ? "text-white" : "text-slate-800"
-                }`}>
+                <div
+                  className={`font-bold truncate ${
+                    highlightedIndex === index ? "text-white" : "text-slate-800"
+                  }`}
+                >
                   {item.itemName}
                 </div>
-                <div className={`text-xs flex gap-2 ${
-                  highlightedIndex === index ? "text-blue-100" : "text-slate-500"
-                }`}>
-                  <span>Code: {item.itemCode}</span>
+
+            <div className="text-left ">
+                <div
+                  className={`font-black ${
+                    highlightedIndex === index ? "text-white" : "text-blue-600"
+                  }`}
+                >
+                  Price : ₹ {item.sellingPrice || item.purchasePrice }
+                </div>
+                <div
+                  className={`text-[12px] font-mono  ${
+                    highlightedIndex === index
+                      ? "text-gray-200"
+                      : "text-slate-400"
+                  }`}
+                >
+                  Stock : {item.stock}
+                </div>
+              </div>
+
+
+
+                <div
+                  className={`text-xs flex gap-2 ${
+                    highlightedIndex === index
+                      ? "text-blue-100"
+                      : "text-slate-500"
+                  }`}
+                >
+                  <span>Code : {item.itemCode}</span>
                   <span>|</span>
                   <span className="font-mono">HSN: {item.hsnCode}</span>
                 </div>
+  {/* <div 
+                className={`w-full text-xs ` }
+                >
+              
+                  <span className="flex-row font-mono">Location: {item.location}</span>
+                </div>   */}
               </div>
-              <div className="text-right ml-4">
-                <div className={`font-black ${
-                  highlightedIndex === index ? "text-white" : "text-blue-600"
-                }`}>
+              {/* <div className="text-right ml-4">
+                <div
+                  className={`font-black ${
+                    highlightedIndex === index ? "text-white" : "text-blue-600"
+                  }`}
+                >
                   ₹{item.purchasePrice || item.sellingPrice}
                 </div>
-                <div className={`text-[10px] font-bold ${
-                  highlightedIndex === index ? "text-blue-200" : "text-slate-400"
-                }`}>
+                <div
+                  className={`text-[10px] font-bold ${
+                    highlightedIndex === index
+                      ? "text-blue-200"
+                      : "text-slate-400"
+                  }`}
+                >
                   Stock: {item.stock}
                 </div>
-              </div>
+              </div> */}
+
+  <div 
+                className={`w-full text-xs ` }
+                >
+              
+                  <span className="flex-row font-mono">Location : {item.location}</span>
+                </div>  
+ 
+        
             </div>
+ 
+
           ))}
         </div>
       )}

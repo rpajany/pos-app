@@ -37,6 +37,7 @@ export const ItemMaster = () => {
     description: "",
     category: "",
     barcode: "",
+    location: "",
     purchasePrice: "",
     sellingPrice: "",
     hsnCode: "",
@@ -57,6 +58,7 @@ export const ItemMaster = () => {
       description: "",
       category: "",
       barcode: "",
+         location: "",
       purchasePrice: "",
       sellingPrice: "",
       hsnCode: "",
@@ -206,12 +208,12 @@ export const ItemMaster = () => {
 
   const downloadSampleCSV = () => {
   // Define the headers based on your handleBulkUpload index mapping
-  const headers = "itemCode,itemName,category,barcode,purchasePrice,sellingPrice,stock";
+  const headers = "itemCode,itemName,category,barcode,location,purchasePrice,sellingPrice,stock";
   
   // Define a few sample rows to guide the user
   const sampleData = [
-    "ITEM001,Sample Product A,Grocery,12345678,100,120,50",
-    "ITEM002,Sample Product B,Electronics,87654321,500,750,10"
+    "ITEM001,Sample Product A,Grocery,12345678,12345678,100,120,50",
+    "ITEM002,Sample Product B,Electronics,87654321,12345678,500,750,10"
   ].join("\n");
 
   const csvContent = `${headers}\n${sampleData}`;
@@ -250,9 +252,10 @@ export const ItemMaster = () => {
             nameTamil: columns[1]?.replace(/"/g, ""), // Using English name as fallback for Tamil
             category: columns[2]?.replace(/"/g, ""),
             barcode: columns[3]?.replace(/"/g, ""),
-            purchasePrice: parseFloat(columns[4]) || 0,
-            sellingPrice: parseFloat(columns[5]) || 0,
-            stock: parseInt(columns[6]) || 0,
+            location: columns[4]?.replace(/"/g, ""),
+            purchasePrice: parseFloat(columns[5]) || 0,
+            sellingPrice: parseFloat(columns[6]) || 0,
+            stock: parseInt(columns[7]) || 0,
             hsnCode: "0000", // Default HSN to pass Mongoose validation
             unit: "piece",
             isActive: true,
@@ -662,9 +665,20 @@ export const ItemMaster = () => {
                 value={formData.barcode}
                 onChange={handleInputChange}
               />
+
+      <InputField
+                type="text"
+                label="Location"
+                name="location"
+                placeholder="Item Location"
+                value={formData.location}
+                onChange={handleInputChange}
+              />
+
+
             </div>
 
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-5 gap-4">
               <InputField
                 type="number"
                 label="Purchase Price"
@@ -918,6 +932,9 @@ export const ItemMaster = () => {
                 <th className="px-4 py-3 text-left font-semibold text-gray-200">
                   Barcode
                 </th>
+                      <th className="px-4 py-3 text-left font-semibold text-gray-200">
+                  Location
+                </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-200">
                   Price
                 </th>
@@ -947,6 +964,9 @@ export const ItemMaster = () => {
                   </td>
                   <td className="px-4 py-3 text-gray-500">
                     {item.barcode || "-"}
+                  </td>
+                        <td className="px-4 py-3 text-gray-500">
+                    {item.location || "-"}
                   </td>
                   <td className="px-4 py-3">₹{item.sellingPrice}</td>
 

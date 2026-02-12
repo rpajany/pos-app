@@ -81,3 +81,16 @@ If you are using a standard 80mm thermal printer, you often need to send a speci
 
 Scenario B: Browser Printing (Window.print())
 If you generate a PDF or an HTML invoice and press Ctrl + P, it will work perfectly as long as your system has a Tamil font installed (which most modern OS like Windows 10/11, macOS, and Linux do by default).
+
+-----------------------------------
+PS D:\PROJECT_BACKUP\pos-app\5_Deploy_Mob_Layout> docker ps --format "table {{.Names}}\t{{.Status}}"
+NAMES                          STATUS
+5_deploy_mob_layout-server-1   Up About an hour
+5_deploy_mob_layout-db-1       Up About an hour
+5_deploy_mob_layout-db3-1      Up About an hour
+5_deploy_mob_layout-db2-1      Up About an hour
+PS D:\PROJECT_BACKUP\pos-app\5_Deploy_Mob_Layout> docker ps --filter "name=db" --format '{{.Names}}'
+5_deploy_mob_layout-db-1 
+5_deploy_mob_layout-db3-1
+5_deploy_mob_layout-db2-1
+PS D:\PROJECT_BACKUP\pos-app\5_Deploy_Mob_Layout> 

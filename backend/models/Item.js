@@ -9,6 +9,7 @@ const itemSchema = new mongoose.Schema({
   description: { type: String },
   category: { type: String, required: true },
   barcode: { type: String, unique: true, sparse: true },
+  location: { type: String },
   purchasePrice: { type: Number, required: true },
   sellingPrice: { type: Number, required: true },
   stock: { type: Number, default: 0 },

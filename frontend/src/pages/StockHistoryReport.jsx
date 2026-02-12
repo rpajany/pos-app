@@ -57,7 +57,7 @@ export default function StockHistoryReport() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <h1 className="text-2xl font-bold text-gray-800">Stock Movement Report</h1>
             
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex  flex-wrap items-center gap-3">
               <div className="flex items-center gap-2 bg-gray-100 p-2 rounded-lg border">
                 <Calendar size={18} className="text-gray-500" />
                 <input 

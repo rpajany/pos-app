@@ -140,6 +140,7 @@ fetchReport();
                       Invoice No
                     </th>
                     <th className="p-4 text-xs uppercase font-bold">Mode</th>
+                    <th className="p-4 text-xs uppercase font-bold">Note</th>
                     <th className="p-4 text-xs uppercase font-bold text-right">
                       Amount
                     </th>
@@ -169,6 +170,8 @@ fetchReport();
                             {t.type}
                           </span>
                         </td>
+
+                        <td>{t.note}</td>
                         <td className="p-4 text-sm font-bold text-right text-green-700">
                           ₹ {(t.amount || 0).toFixed(2)}
                         </td>

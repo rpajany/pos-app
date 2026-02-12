@@ -94,6 +94,55 @@ export const Dashboard = () => {
 
   const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8"];
 
+
+  const SalesPaymentStatsChart = ({ data }) => {
+  // Define colors for your payment types
+  const COLORS = {
+    cash: '#22c55e', // Green
+    upi: '#3b82f6',  // Blue
+    card: '#f59e0b', // Amber
+    credit: '#ef4444', // Red
+    bank_transfer: '#8b5cf6' // Purple
+  };
+
+  // Format the data for the chart (Capitalize names)
+  const chartData = data.map(item => ({
+    name: item.method.charAt(0).toUpperCase() + item.method.slice(1),
+    value: item.amount,
+    count: item.count
+  }));
+
+  return (
+    <div className="h-[300px] w-full">
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <Pie
+            data={chartData}
+            cx="50%"
+            cy="50%"
+            innerRadius={60}
+            outerRadius={80}
+            paddingAngle={5}
+            dataKey="value"
+          >
+            {chartData.map((entry, index) => (
+              <Cell 
+                key={`cell-${index}`} 
+                fill={COLORS[entry.name.toLowerCase().replace(" ", "_")] || '#94a3b8'} 
+              />
+            ))}
+          </Pie>
+          <Tooltip 
+            formatter={(value) => `₹${value.toLocaleString()}`}
+            contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+          />
+          <Legend verticalAlign="bottom" height={36}/>
+        </PieChart>
+      </ResponsiveContainer>
+    </div>
+  );
+};
+
   return (
     /* p-4 on mobile, p-6 on desktop to maximize space */
     <div className="p-4 md:p-6  bg-gray-50 min-h-screen pb-20">
@@ -203,13 +252,13 @@ export const Dashboard = () => {
 
 {/* Payment Mode Pie Chart */}
       <div className="bg-white border rounded-xl p-4 flex flex-col items-center ">
-        <div className="flex items-center self-start mb-4">
+        {/* <div className="flex items-center self-start mb-4">
           <IndianRupee size={18} className="mr-2 text-blue-600" />
 
           <h3 className="font-bold text-gray-700">Sales / Payment Mode</h3>
-        </div>
+        </div> */}
 
-<div className="h-[300px] w-full">
+{/* <div className="h-[300px] w-full">
 <ResponsiveContainer width="100%" height="100%">
 <PieChart>
   
@@ -234,7 +283,17 @@ export const Dashboard = () => {
           <Legend />
         </PieChart>
         </ResponsiveContainer>
-</div>
+</div> */}
+
+
+<div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+      <div className="flex items-center self-start mb-4">
+          <IndianRupee size={18} className="mr-2 text-blue-600" />
+
+          <h3 className="font-bold text-gray-700">Sales / Payment Mode</h3>
+        </div>
+    <SalesPaymentStatsChart data={stats?.paymentStats || []} />
+  </div>
         
       </div>
 
